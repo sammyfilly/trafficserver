@@ -84,16 +84,9 @@ Hello, <esi:include src="http://www.example.com/date.php"/>
 </html>
 '''
         response_header = {
-            "headers": (
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\r\n"
-                "X-Esi: 1\r\n"
-                "Connection: close\r\n"
-                "Content-Length: {}\r\n"
-                "Cache-Control: max-age=300\r\n"
-                "\r\n".format(len(esi_body))),
+            "headers": f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nX-Esi: 1\r\nConnection: close\r\nContent-Length: {len(esi_body)}\r\nCache-Control: max-age=300\r\n\r\n",
             "timestamp": "1469733493.993",
-            "body": esi_body
+            "body": esi_body,
         }
         server.addResponse("sessionfile.log", request_header, response_header)
         request_header = {
@@ -110,15 +103,9 @@ echo date('l jS \of F Y h:i:s A');
 ?>
 '''
         response_header = {
-            "headers": (
-                "HTTP/1.1 200 OK\r\n"
-                "Content-Type: text/html\r\n"
-                "Connection: close\r\n"
-                "Content-Length: {}\r\n"
-                "Cache-Control: max-age=300\r\n"
-                "\r\n".format(len(date_body))),
+            "headers": f"HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nConnection: close\r\nContent-Length: {len(date_body)}\r\nCache-Control: max-age=300\r\n\r\n",
             "timestamp": "1469733493.993",
-            "body": date_body
+            "body": date_body,
         }
         server.addResponse("sessionfile.log", request_header, response_header)
         # Verify correct functionality with an empty body.
@@ -160,7 +147,7 @@ echo date('l jS \of F Y h:i:s A');
         EsiTest._ts_counter += 1
 
         # Configure ATS with a vanilla ESI plugin configuration.
-        ts = Test.MakeATSProcess("ts{}".format(EsiTest._ts_counter))
+        ts = Test.MakeATSProcess(f"ts{EsiTest._ts_counter}")
         ts.Disk.records_config.update({
             'proxy.config.diags.debug.enabled': 1,
             'proxy.config.diags.debug.tags': 'http|plugin_esi',
@@ -182,7 +169,7 @@ echo date('l jS \of F Y h:i:s A');
         # Test 1: Verify basic ESI functionality.
         tr = Test.AddTestRun("First request for esi.php: not cached")
         tr.Processes.Default.Command = \
-            ('curl http://127.0.0.1:{0}/esi.php -H"Host: www.example.com" '
+                ('curl http://127.0.0.1:{0}/esi.php -H"Host: www.example.com" '
              '-H"Accept: */*" --verbose'.format(
                  self._ts.Variables.port))
         tr.Processes.Default.ReturnCode = 0
@@ -194,7 +181,7 @@ echo date('l jS \of F Y h:i:s A');
         # Test 2: Repeat the above, should now be cached.
         tr = Test.AddTestRun("Second request for esi.php: will be cached")
         tr.Processes.Default.Command = \
-            ('curl http://127.0.0.1:{0}/esi.php -H"Host: www.example.com" '
+                ('curl http://127.0.0.1:{0}/esi.php -H"Host: www.example.com" '
              '-H"Accept: */*" --verbose'.format(
                  self._ts.Variables.port))
         tr.Processes.Default.ReturnCode = 0
@@ -207,11 +194,11 @@ echo date('l jS \of F Y h:i:s A');
         tr = Test.AddTestRun("Verify the ESI plugin can gzip a response")
         EsiTest._output_counter += 1
         unzipped_body_file = os.path.join(
-            tr.RunDirectory,
-            "non_empty_curl_output_{}".format(EsiTest._output_counter))
-        gzipped_body_file = unzipped_body_file + ".gz"
+            tr.RunDirectory, f"non_empty_curl_output_{EsiTest._output_counter}"
+        )
+        gzipped_body_file = f"{unzipped_body_file}.gz"
         tr.Processes.Default.Command = \
-            ('curl http://127.0.0.1:{0}/esi.php -H"Host: www.example.com" '
+                ('curl http://127.0.0.1:{0}/esi.php -H"Host: www.example.com" '
              '-H "Accept-Encoding: gzip" -H"Accept: */*" --verbose --output {1}'.format(
                  self._ts.Variables.port, gzipped_body_file))
         tr.Processes.Default.ReturnCode = 0
@@ -224,7 +211,7 @@ echo date('l jS \of F Y h:i:s A');
 
         # Now, unzip the file and make sure its size is the expected body.
         tr = Test.AddTestRun("Verify the file unzips to the expected body.")
-        tr.Processes.Default.Command = "gunzip {}".format(gzipped_body_file)
+        tr.Processes.Default.Command = f"gunzip {gzipped_body_file}"
         tr.Processes.Default.Ready = When.FileExists(unzipped_body_file)
         tr.Processes.Default.ReturnCode = 0
         unzipped_body_disk_file = tr.Disk.File(unzipped_body_file)
@@ -234,11 +221,11 @@ echo date('l jS \of F Y h:i:s A');
         tr = Test.AddTestRun("Verify we can handle an empty response.")
         EsiTest._output_counter += 1
         empty_body_file = os.path.join(
-            tr.RunDirectory,
-            "empty_curl_output_{}".format(EsiTest._output_counter))
-        gzipped_empty_body = empty_body_file + ".gz"
+            tr.RunDirectory, f"empty_curl_output_{EsiTest._output_counter}"
+        )
+        gzipped_empty_body = f"{empty_body_file}.gz"
         tr.Processes.Default.Command = \
-            ('curl http://127.0.0.1:{0}/expect_empty_body -H"Host: www.example.com" '
+                ('curl http://127.0.0.1:{0}/expect_empty_body -H"Host: www.example.com" '
              '-H"Accept-Encoding: gzip" -H"Accept: */*" --verbose --output {1}'.format(
                  self._ts.Variables.port, gzipped_empty_body))
         tr.Processes.Default.ReturnCode = 0
@@ -253,7 +240,7 @@ echo date('l jS \of F Y h:i:s A');
 
         # Now, unzip the file and make sure its size is the original 0 size body.
         tr = Test.AddTestRun("Verify the file unzips to a zero sized file.")
-        tr.Processes.Default.Command = "gunzip {}".format(gzipped_empty_body)
+        tr.Processes.Default.Command = f"gunzip {gzipped_empty_body}"
         tr.Processes.Default.Ready = When.FileExists(empty_body_file)
         tr.Processes.Default.ReturnCode = 0
         unzipped_disk_file = tr.Disk.File(empty_body_file)

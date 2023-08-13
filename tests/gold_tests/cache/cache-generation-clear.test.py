@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -63,7 +64,9 @@ tr.Processes.Default.Streams.All = "gold/hit_default-1.gold"
 
 # Call traffic_ctrl to set new generation
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = f'traffic_ctl --debug config set proxy.config.http.cache.generation 77'
+tr.Processes.Default.Command = (
+    'traffic_ctl --debug config set proxy.config.http.cache.generation 77'
+)
 tr.Processes.Default.ForceUseShell = False
 tr.Processes.Default.ReturnCode = 0
 tr.Processes.Default.Env = ts.Env  # set the environment for traffic_control to run in

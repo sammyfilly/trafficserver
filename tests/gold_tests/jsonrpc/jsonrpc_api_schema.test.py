@@ -35,7 +35,7 @@ def substitute_context_in_file(process, file, context):
     Perform substitution based on the passed context dict. This function will return a new path for the substituted file.
     '''
     if os.path.isdir(file):
-        raise ValueError(f"Mapping substitution not supported for directories.")
+        raise ValueError("Mapping substitution not supported for directories.")
 
     with open(os.path.join(process.TestDirectory, file), 'r') as req_file:
         req_template = Template(req_file.read())

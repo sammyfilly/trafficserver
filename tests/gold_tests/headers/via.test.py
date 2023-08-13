@@ -2,6 +2,7 @@
 Test the VIA header. This runs several requests through ATS and extracts the upstream VIA headers.
 Those are then checked against a gold file to verify the protocol stack based output is correct.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -81,8 +82,7 @@ tr.Processes.Default.StartBefore(server, ready=When.PortOpen(server.Variables.Po
 # Delay on readiness of our ssl ports
 tr.Processes.Default.StartBefore(Test.Processes.ts)
 
-tr.Processes.Default.Command = 'curl --verbose --ipv4 --http1.1 --proxy localhost:{} http://www.example.com'.format(
-    ts.Variables.port)
+tr.Processes.Default.Command = f'curl --verbose --ipv4 --http1.1 --proxy localhost:{ts.Variables.port} http://www.example.com'
 tr.Processes.Default.ReturnCode = 0
 
 tr.StillRunningAfter = server
@@ -90,8 +90,7 @@ tr.StillRunningAfter = ts
 
 # HTTP 1.0
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = 'curl --verbose --ipv4 --http1.0 --proxy localhost:{} http://www.example.com'.format(
-    ts.Variables.port)
+tr.Processes.Default.Command = f'curl --verbose --ipv4 --http1.0 --proxy localhost:{ts.Variables.port} http://www.example.com'
 tr.Processes.Default.ReturnCode = 0
 
 tr.StillRunningAfter = server
@@ -99,8 +98,7 @@ tr.StillRunningAfter = ts
 
 # HTTP 2
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = 'curl --verbose --ipv4 --http2 --insecure --header "Host: www.example.com" https://localhost:{}'.format(
-    ts.Variables.ssl_port)
+tr.Processes.Default.Command = f'curl --verbose --ipv4 --http2 --insecure --header "Host: www.example.com" https://localhost:{ts.Variables.ssl_port}'
 tr.Processes.Default.ReturnCode = 0
 
 tr.StillRunningAfter = server
@@ -109,16 +107,14 @@ tr.StillRunningAfter = ts
 # HTTP 3
 if Condition.HasATSFeature('TS_HAS_QUICHE') and Condition.HasCurlFeature('http3'):
     tr = Test.AddTestRun()
-    tr.Processes.Default.Command = 'curl --verbose --ipv4 --http3 --insecure --header "Host: www.example.com" https://localhost:{}'.format(
-        ts.Variables.ssl_port)
+    tr.Processes.Default.Command = f'curl --verbose --ipv4 --http3 --insecure --header "Host: www.example.com" https://localhost:{ts.Variables.ssl_port}'
     tr.Processes.Default.ReturnCode = 0
     tr.StillRunningAfter = server
     tr.StillRunningAfter = ts
 
 # TLS
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = 'curl --verbose --ipv4 --http1.1 --insecure --header "Host: www.example.com" https://localhost:{}'.format(
-    ts.Variables.ssl_port)
+tr.Processes.Default.Command = f'curl --verbose --ipv4 --http1.1 --insecure --header "Host: www.example.com" https://localhost:{ts.Variables.ssl_port}'
 tr.Processes.Default.ReturnCode = 0
 
 tr.StillRunningAfter = server
@@ -126,15 +122,13 @@ tr.StillRunningAfter = ts
 
 # IPv6
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = 'curl --verbose --ipv6 --http1.1 --proxy localhost:{} http://www.example.com'.format(
-    ts.Variables.portv6)
+tr.Processes.Default.Command = f'curl --verbose --ipv6 --http1.1 --proxy localhost:{ts.Variables.portv6} http://www.example.com'
 tr.Processes.Default.ReturnCode = 0
 tr.StillRunningAfter = server
 tr.StillRunningAfter = ts
 
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = 'curl --verbose --ipv6 --http1.1 --insecure --header "Host: www.example.com" https://localhost:{}'.format(
-    ts.Variables.ssl_portv6)
+tr.Processes.Default.Command = f'curl --verbose --ipv6 --http1.1 --insecure --header "Host: www.example.com" https://localhost:{ts.Variables.ssl_portv6}'
 tr.Processes.Default.ReturnCode = 0
 
 tr.StillRunningAfter = server

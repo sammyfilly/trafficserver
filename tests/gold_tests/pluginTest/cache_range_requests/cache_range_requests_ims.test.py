@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -31,9 +32,9 @@ Test.SkipUnless(
     Condition.PluginExists('cache_range_requests.so'),
     Condition.PluginExists('xdebug.so'),
 )
-Test.ContinueOnFail = False
 Test.testName = "cache_range_requests_ims"
 
+Test.ContinueOnFail = False
 # Define and configure ATS
 ts = Test.MakeATSProcess("ts")
 
@@ -88,13 +89,12 @@ res_full = {"headers":
 server.addResponse("sessionlog.json", req_full, res_full)
 
 # cache range requests plugin remap
-ts.Disk.remap_config.AddLines([
-    f'map http://ims http://127.0.0.1:{server.Variables.Port}' +
-    ' @plugin=cache_range_requests.so @pparam=--consider-ims',
-    f'map http://imsheader http://127.0.0.1:{server.Variables.Port}' +
-    ' @plugin=cache_range_requests.so @pparam=--consider-ims' +
-    ' @pparam=--ims-header=CrrIms',
-])
+ts.Disk.remap_config.AddLines(
+    [
+        f'map http://ims http://127.0.0.1:{server.Variables.Port} @plugin=cache_range_requests.so @pparam=--consider-ims',
+        f'map http://imsheader http://127.0.0.1:{server.Variables.Port} @plugin=cache_range_requests.so @pparam=--consider-ims @pparam=--ims-header=CrrIms',
+    ]
+)
 
 # cache debug
 ts.Disk.plugin_config.AddLine('xdebug.so --enable=x-cache')
@@ -105,14 +105,14 @@ ts.Disk.records_config.update({
     'proxy.config.diags.debug.tags': 'cache_range_requests',
 })
 
-curl_and_args = 'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{} -H "x-debug: x-cache"'.format(ts.Variables.port)
+curl_and_args = f'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{ts.Variables.port} -H "x-debug: x-cache"'
 
 # 0 Test - Fetch whole asset into cache
 tr = Test.AddTestRun("0- range cache load")
 ps = tr.Processes.Default
 ps.StartBefore(server, ready=When.PortOpen(server.Variables.Port))
 ps.StartBefore(Test.Processes.ts)
-ps.Command = curl_and_args + ' http://ims/path -r 0-'
+ps.Command = f'{curl_and_args} http://ims/path -r 0-'
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression("X-Cache: miss", "expected cache miss for load")
 tr.StillRunningAfter = ts
@@ -122,7 +122,7 @@ tr.StillRunningAfter = ts
 # 1 Test - Fetch range into cache
 tr = Test.AddTestRun("0- cache hit check")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://ims/path -r 0-'
+ps.Command = f'{curl_and_args} http://ims/path -r 0-'
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression("X-Cache: hit", "expected cache hit")
 tr.StillRunningAfter = ts
@@ -134,7 +134,9 @@ futurestr = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(futuretime))
 # 2 Test - Ensure X-CRR-IMS header results in hit-stale
 tr = Test.AddTestRun("0- range X-CRR-IMS check")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://ims/path -r 0- -H "X-CRR-IMS: {}"'.format(futurestr)
+ps.Command = (
+    f'{curl_and_args} http://ims/path -r 0- -H "X-CRR-IMS: {futurestr}"'
+)
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression("X-Cache: hit-stale", "expected cache hit-stale")
 tr.StillRunningAfter = ts
@@ -145,7 +147,9 @@ futurestr = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(futuretime))
 # 3 Test - Ensure CrrIms header results in hit-stale
 tr = Test.AddTestRun("0- range CrrIms check, override header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://imsheader/path -r 0- -H "CrrIms: {}"'.format(futurestr)
+ps.Command = (
+    f'{curl_and_args} http://imsheader/path -r 0- -H "CrrIms: {futurestr}"'
+)
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression("X-Cache: hit-stale", "expected cache hit-stale")
 tr.StillRunningAfter = ts

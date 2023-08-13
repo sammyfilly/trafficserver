@@ -48,10 +48,7 @@ class PostProcessError(Exception):
         self.message = message
 
     def __str__(self, *args):
-        if self.message:
-            return self.message
-        else:
-            return 'PostProcessError raised'
+        return self.message if self.message else 'PostProcessError raised'
 
 
 class VerifyError(PostProcessError):
@@ -143,15 +140,14 @@ def verify_transaction(transaction, fabricate_proxy_requests=False):
     if "proxy-response" not in transaction:
         raise VerifyResponseError('proxy-response not found in transaction')
 
-    if "proxy-request" in transaction or "server-response" in transaction:
-        # proxy-request nodes can be empty, so no need to verify_response.
-        if "proxy-request" not in transaction:
-            raise VerifyRequestError('proxy-request not found in transaction')
-
-        if "server-response" not in transaction:
-            raise VerifyResponseError('server-response not found in transaction')
-        else:
+    if "proxy-request" in transaction:
+        if "server-response" in transaction:
             verify_response(transaction["server-response"])
+
+        else:
+            raise VerifyResponseError('server-response not found in transaction')
+    elif "server-response" in transaction:
+        raise VerifyRequestError('proxy-request not found in transaction')
 
 
 def verify_session(session, fabricate_proxy_requests=False):

@@ -115,7 +115,7 @@ contents = open('../configure.ac').read()
 match = re.compile(r'm4_define\(\[TS_VERSION_S],\[(.*?)]\)').search(contents)
 
 # The full version, including alpha/beta/rc tags.
-release = match.group(1)
+release = match[1]
 # The short X.Y version.
 version = '.'.join(release.split('.', 2)[:2])
 
@@ -136,7 +136,7 @@ if os.environ.get('READTHEDOCS') == 'True':
                 po_file = os.path.join(path, filename)
                 base, ext = os.path.splitext(po_file)
                 if ext == ".po":
-                    mo_file = base + ".mo"
+                    mo_file = f"{base}.mo"
                     po = polib.pofile(po_file)
                     po.save_as_mofile(fpath=mo_file)
     print("done")
@@ -245,7 +245,7 @@ class Inliner(states.Inliner):
         rawsource = unescape(text, True)
         text = unescape(text, False)
 
-        refuri = 'https://issues.apache.org/jira/browse/' + text
+        refuri = f'https://issues.apache.org/jira/browse/{text}'
 
         return [nodes.reference(rawsource, text, refuri=refuri)]
 

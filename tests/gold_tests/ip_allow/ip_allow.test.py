@@ -1,6 +1,7 @@
 '''
 Verify ip_allow filtering behavior.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -180,9 +181,8 @@ tr.StillRunningAfter = server
 
 tr = Test.AddTestRun()
 tr.Processes.Default.Command = (
-    os.path.join(Test.Variables.AtsTestToolsDir, 'stdout_wait') + ' 60 "{} {}" {}'.format(
-        os.path.join(Test.TestDirectory, 'run_sed.sh'), os.path.join(ts.Variables.LOGDIR, 'squid.log'),
-        os.path.join(Test.TestDirectory, 'gold/log.gold'))
+    os.path.join(Test.Variables.AtsTestToolsDir, 'stdout_wait')
+    + f""" 60 "{os.path.join(Test.TestDirectory, 'run_sed.sh')} {os.path.join(ts.Variables.LOGDIR, 'squid.log')}" {os.path.join(Test.TestDirectory, 'gold/log.gold')}"""
 )
 tr.Processes.Default.ReturnCode = 0
 

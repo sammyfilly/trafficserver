@@ -35,12 +35,12 @@ reactor.callLater(1, callback)
 class factory(http.HTTPFactory):
     class protocol(http.HTTPChannel):
         class requestFactory(http.Request):
-            def requestReceived(ctx, method, target, version):
+            def requestReceived(self, method, target, version):
 
-                ctx.client = None
-                ctx.clientproto = version
+                self.client = None
+                self.clientproto = version
 
-                ctx.write('')
+                self.write('')
 
 
 origin = tcp.Port(0, factory())
@@ -68,8 +68,10 @@ class factory(protocol.ClientFactory):
             else:
                 print 'not ok 1 - Did the proxy crash?  (The client connection closed.)'
 
-        def connectionMade(ctx):
-            ctx.transport.write('GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+        def connectionMade(self):
+            self.transport.write(
+                'GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname())
+            )
 
         def handleStatus(ctx, version, status, message):
             print 'ok 1 - Got the response status'

@@ -34,12 +34,12 @@ def parse_records_file(filename):
             if parts[2] == 'INT' and parts[3][-1] in 'KMG':
                 unit = parts[3][-1]
                 val = parts[3][:-1]
-                if unit == 'K':
-                    val = int(val) * 1024
-                if unit == 'M':
-                    val = int(val) * 1048576
                 if unit == 'G':
                     val = int(val) * 1073741824
+                elif unit == 'K':
+                    val = int(val) * 1024
+                elif unit == 'M':
+                    val = int(val) * 1048576
                 parts[3] = str(val)
             try:
                 settings[parts[1]] = parts[3]

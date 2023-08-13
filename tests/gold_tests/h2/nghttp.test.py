@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -33,10 +34,8 @@ httpbin = Test.MakeHttpBinServer("httpbin")
 
 # 128KB
 post_body = "0123456789abcdef" * 8192
-post_body_file = open(os.path.join(Test.RunDirectory, "post_body"), "w")
-post_body_file.write(post_body)
-post_body_file.close()
-
+with open(os.path.join(Test.RunDirectory, "post_body"), "w") as post_body_file:
+    post_body_file.write(post_body)
 # ----
 # Setup ATS
 # ----

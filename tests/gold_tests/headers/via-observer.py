@@ -26,13 +26,10 @@ rxp = re.compile(r'(\S+)\s+(\S+)\s\((\S+)\s+\[([^]]+)\]\s\[([^]]+)\]\s*\)')
 def observe(headers):
     if 'via' in headers:
         via = headers['via']
-        if via:
-            via = rxp.sub(r'\1 = \5', via)
-        else:
-            via = '---empty---'
+        via = rxp.sub(r'\1 = \5', via) if via else '---empty---'
     else:
         via = '---missing---'
-    log.write("Via: {}\n".format(via))
+    log.write(f"Via: {via}\n")
     log.flush()
 
 

@@ -1,6 +1,7 @@
 '''
 Tests that 204 responses conform to rfc2616, unless custom templates override.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -37,8 +38,11 @@ ts.Disk.records_config.update({
 
 # Create a template body for a 204.
 body_factory_dir = ts.Variables.BODY_FACTORY_TEMPLATE_DIR
-ts.Disk.File(os.path.join(body_factory_dir, 'default', CUSTOM_TEMPLATE_204_HOST + '_default')).\
-    WriteOn(
+ts.Disk.File(
+    os.path.join(
+        body_factory_dir, 'default', f'{CUSTOM_TEMPLATE_204_HOST}_default'
+    )
+).WriteOn(
     """<HTML>
 <HEAD>
 <TITLE>Spec-breaking 204!</TITLE>
@@ -53,7 +57,8 @@ Description: According to rfc7231 I should not have been sent to you!
 </B></FONT>
 <HR>
 </BODY>
-""")
+"""
+)
 
 regex_remap_conf_file = "maps.reg"
 

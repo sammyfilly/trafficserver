@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -30,9 +31,9 @@ Test.SkipUnless(
     Condition.PluginExists('cachekey.so'),
     Condition.PluginExists('xdebug.so'),
 )
-Test.ContinueOnFail = False
 Test.testName = "cache_range_requests_cachekey"
 
+Test.ContinueOnFail = False
 # Define and configure ATS, enable traffic_ctl config reload
 ts = Test.MakeATSProcess("ts")
 
@@ -140,16 +141,12 @@ server.addResponse("sessionlog.json", req_fail, res_fail)
 
 # cache range requests plugin remap, working config
 ts.Disk.remap_config.AddLine(
-    'map http://www.example.com http://127.0.0.1:{}'.format(server.Variables.Port) +
-    ' @plugin=cachekey.so @pparam=--include-headers=Range' +
-    ' @plugin=cache_range_requests.so @pparam=--no-modify-cachekey',
+    f'map http://www.example.com http://127.0.0.1:{server.Variables.Port} @plugin=cachekey.so @pparam=--include-headers=Range @plugin=cache_range_requests.so @pparam=--no-modify-cachekey'
 )
 
 # improperly configured cache_range_requests with cachekey
 ts.Disk.remap_config.AddLine(
-    'map http://www.fail.com http://127.0.0.1:{}'.format(server.Variables.Port) +
-    ' @plugin=cachekey.so @pparam=--static-prefix=foo'
-    ' @plugin=cache_range_requests.so',
+    f'map http://www.fail.com http://127.0.0.1:{server.Variables.Port} @plugin=cachekey.so @pparam=--static-prefix=foo @plugin=cache_range_requests.so'
 )
 
 # cache debug
@@ -161,14 +158,14 @@ ts.Disk.records_config.update({
     'proxy.config.diags.debug.tags': 'cache_range_requests',
 })
 
-curl_and_args = 'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{} -H "x-debug: x-cache"'.format(ts.Variables.port)
+curl_and_args = f'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{ts.Variables.port} -H "x-debug: x-cache"'
 
 # 0 Test - Fetch full asset into cache (ensure cold)
 tr = Test.AddTestRun("full asset fetch")
 ps = tr.Processes.Default
 ps.StartBefore(server, ready=When.PortOpen(server.Variables.Port))
 ps.StartBefore(Test.Processes.ts)
-ps.Command = curl_and_args + ' http://www.example.com/path -H "uuid: full"'
+ps.Command = f'{curl_and_args} http://www.example.com/path -H "uuid: full"'
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression("X-Cache: miss", "expected cache miss for load")
 tr.StillRunningAfter = ts
@@ -176,7 +173,9 @@ tr.StillRunningAfter = ts
 # 1 Test - Fetch whole asset into cache via range request (ensure cold)
 tr = Test.AddTestRun("0- asset fetch")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://www.example.com/path -r 0- -H "uuid: range_full"'
+ps.Command = (
+    f'{curl_and_args} http://www.example.com/path -r 0- -H "uuid: range_full"'
+)
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression("X-Cache: miss", "expected cache miss for load")
 tr.StillRunningAfter = ts
@@ -184,7 +183,9 @@ tr.StillRunningAfter = ts
 # 2 Test - Ensure assert happens instead of possible cache poisoning.
 tr = Test.AddTestRun("Attempt poisoning")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://www.fail.com/path -r 0- -H "uuid: range_fail"'
+ps.Command = (
+    f'{curl_and_args} http://www.fail.com/path -r 0- -H "uuid: range_fail"'
+)
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 

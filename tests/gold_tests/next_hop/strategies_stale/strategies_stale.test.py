@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -47,7 +48,9 @@ dns = Test.MakeDNServer("dns")
 
 # Define next hop trafficserver instances.
 #
-ts_nh = Test.MakeATSProcess(f"ts_nh0", use_traffic_out=False, command=f"traffic_server 2>nh_trace.log")
+ts_nh = Test.MakeATSProcess(
+    "ts_nh0", use_traffic_out=False, command="traffic_server 2>nh_trace.log"
+)
 ts_nh.Disk.records_config.update({
     'proxy.config.diags.debug.enabled': 1,
     'proxy.config.diags.debug.tags': 'http|dns',
@@ -72,18 +75,22 @@ ts.Disk.records_config.update({
     'proxy.config.http.parent_proxy.self_detect': 0,
 })
 
-ts.Disk.File(ts.Variables.CONFIGDIR + "/strategies.yaml", id="strategies", typename="ats:config")
+ts.Disk.File(
+    f"{ts.Variables.CONFIGDIR}/strategies.yaml",
+    id="strategies",
+    typename="ats:config",
+)
 s = ts.Disk.strategies
 s.AddLine("groups:")
 s.AddLine("  - &g1")
 dns.addRecords(records={"next_hop0": ["127.0.0.1"]})
-s.AddLine(f"    - host: next_hop0")
-s.AddLine(f"      protocol:")
-s.AddLine(f"        - scheme: http")
+s.AddLine("    - host: next_hop0")
+s.AddLine("      protocol:")
+s.AddLine("        - scheme: http")
 s.AddLine(f"          port: {ts_nh.Variables.port}")
 # The health check URL does not seem to be used currently.
 # s.AddLine(f"          health_check_url: http://next_hop0:{ts_nh.Variables.port}")
-s.AddLine(f"      weight: 1.0")
+s.AddLine("      weight: 1.0")
 s.AddLines([
     "strategies:",
     "  - strategy: the-strategy",

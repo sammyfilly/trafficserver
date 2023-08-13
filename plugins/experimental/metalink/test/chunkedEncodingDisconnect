@@ -36,17 +36,17 @@ reactor.callLater(2, callback)
 class factory(http.HTTPFactory):
     class protocol(http.HTTPChannel):
         class requestFactory(http.Request):
-            def requestReceived(ctx, method, target, version):
+            def requestReceived(self, method, target, version):
 
-                ctx.client = None
-                ctx.clientproto = version
+                self.client = None
+                self.clientproto = version
 
-                ctx.write('chunkedEncodingDisconnect')
+                self.write('chunkedEncodingDisconnect')
 
                 # If the origin disconnects before the proxy sends the
                 # response headers, the proxy may send a Content-Length header
                 # vs. a chunked response
-                reactor.callLater(1, ctx.transport.loseConnection)
+                reactor.callLater(1, self.transport.loseConnection)
 
 
 origin = tcp.Port(0, factory())
@@ -74,8 +74,10 @@ class factory(protocol.ClientFactory):
             else:
                 print 'ok 1 - The client connection closed'
 
-        def connectionMade(ctx):
-            ctx.transport.write('GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+        def connectionMade(self):
+            self.transport.write(
+                'GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname())
+            )
 
         def handleHeader(ctx, k, v):
             if k.lower() == 'content-length':
@@ -88,7 +90,7 @@ class factory(protocol.ClientFactory):
         # message (if the proxy sent a Content-Length header vs. a chunked
         # response).  (Override connectionLost() when the proxy closes the
         # client connection or we stop the reactor.)
-        def handleResponseEnd(ctx):
+        def handleResponseEnd(self):
             pass
 
         def handleResponsePart(ctx, data):

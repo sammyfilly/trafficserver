@@ -1,6 +1,7 @@
 '''
 Test the 408 response header.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -32,7 +33,11 @@ server = Test.MakeOriginServer("server")
 
 HTTP_408_HOST = 'www.http408.test'
 
-request_header = {"headers": "GET / HTTP/1.1\r\nHost: {}\r\n\r\n".format(HTTP_408_HOST), "timestamp": "1469733493.993", "body": ""}
+request_header = {
+    "headers": f"GET / HTTP/1.1\r\nHost: {HTTP_408_HOST}\r\n\r\n",
+    "timestamp": "1469733493.993",
+    "body": "",
+}
 response_header = {"headers": "HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n", "timestamp": "1469733493.993", "body": ""}
 server.addResponse("sessionlog.json", request_header, response_header)
 

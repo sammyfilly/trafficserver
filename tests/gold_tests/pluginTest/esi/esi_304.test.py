@@ -82,17 +82,20 @@ Hello, ESI 304 test
 </html>
 '''
         response_header = {
-            "headers":
-            "HTTP/1.1 200 OK\r\n" +
-            "X-Esi: 1\r\n" +
-            "Cache-Control: public, max-age=0\r\n" +
-            'Etag: "esi_304_test"\r\n' +
-            "Content-Type: text/html\r\n" +
-            "Connection: close\r\n" +
-            "Content-Length: {}\r\n".format(len(esi_body)) +
-            "\r\n",
+            "headers": (
+                (
+                    "HTTP/1.1 200 OK\r\n"
+                    + "X-Esi: 1\r\n"
+                    + "Cache-Control: public, max-age=0\r\n"
+                    + 'Etag: "esi_304_test"\r\n'
+                    + "Content-Type: text/html\r\n"
+                    + "Connection: close\r\n"
+                    + f"Content-Length: {len(esi_body)}\r\n"
+                )
+                + "\r\n"
+            ),
             "timestamp": "1469733493.993",
-            "body": esi_body
+            "body": esi_body,
         }
         server.addResponse("sessionfile.log", request_header, response_header)
 
@@ -131,14 +134,17 @@ Hello, ESI 304 test
 No Date
 '''
         response_header = {
-            "headers":
-            "HTTP/1.1 200 OK\r\n" +
-            "Content-Type: text/html\r\n" +
-            "Connection: close\r\n" +
-            "Content-Length: {}\r\n".format(len(date_body)) +
-            "\r\n",
+            "headers": (
+                (
+                    "HTTP/1.1 200 OK\r\n"
+                    + "Content-Type: text/html\r\n"
+                    + "Connection: close\r\n"
+                    + f"Content-Length: {len(date_body)}\r\n"
+                )
+                + "\r\n"
+            ),
             "timestamp": "1469733493.993",
-            "body": date_body
+            "body": date_body,
         }
         server.addResponse("sessionfile.log", request_header, response_header)
 
@@ -159,7 +165,7 @@ No Date
         EsiTest._ts_counter += 1
 
         # Configure ATS with a vanilla ESI plugin configuration.
-        ts = Test.MakeATSProcess("ts{}".format(EsiTest._ts_counter))
+        ts = Test.MakeATSProcess(f"ts{EsiTest._ts_counter}")
         ts.Disk.records_config.update({
             'proxy.config.diags.debug.enabled': 1,
             'proxy.config.diags.debug.tags': 'http|plugin_esi',

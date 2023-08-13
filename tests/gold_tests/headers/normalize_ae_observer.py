@@ -25,10 +25,10 @@ def observe(headers):
     seen = False
     for h in headers.items():
         if h[0] == "X-Au-Test":
-            log.write("X-Au-Test: {}\n".format(h[1]))
+            log.write(f"X-Au-Test: {h[1]}\n")
 
         if h[0] == "Accept-Encoding":
-            log.write("{}\n".format(h[1]))
+            log.write(f"{h[1]}\n")
             seen = True
 
     if not seen:

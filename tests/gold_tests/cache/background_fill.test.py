@@ -75,7 +75,7 @@ class BackgroundFillTest:
                 "proxy.config.diags.debug.tags": "http",
             })
 
-            if name == 'for_httpbin' or name == 'default':
+            if name in ['for_httpbin', 'default']:
                 self.ts[name].Disk.remap_config.AddLines([
                     f"map / http://127.0.0.1:{self.httpbin.Variables.Port}",
                 ])

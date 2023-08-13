@@ -36,7 +36,7 @@ class Sigusr2Test:
         self.ts = self.__configure_traffic_server()
 
     def __configure_traffic_server(self):
-        self._ts_name = "sigusr2_ts{}".format(Sigusr2Test.__ts_counter)
+        self._ts_name = f"sigusr2_ts{Sigusr2Test.__ts_counter}"
         Sigusr2Test.__ts_counter += 1
         self.ts = Test.MakeATSProcess(self._ts_name)
         self.ts.Disk.records_config.update({
@@ -53,7 +53,7 @@ class Sigusr2Test:
         self.diags_log = self.ts.Disk.diags_log.AbsPath
 
         # Add content handles for the rotated logs.
-        self.rotated_diags_log = self.diags_log + "_old"
+        self.rotated_diags_log = f"{self.diags_log}_old"
         self.ts.Disk.File(self.rotated_diags_log, id="diags_log_old")
 
         self.log_dir = os.path.dirname(self.diags_log)
@@ -74,7 +74,7 @@ class Sigusr2Test:
         self.configured_log = os.path.join(self.log_dir, "test_rotation.log")
         self.ts.Disk.File(self.configured_log, id="configured_log")
 
-        self.rotated_configured_log = self.configured_log + "_old"
+        self.rotated_configured_log = f"{self.configured_log}_old"
         self.ts.Disk.File(self.rotated_configured_log, id="configured_log_old")
         self.ts.StartBefore(self.server)
         return self.ts
@@ -85,9 +85,11 @@ class Sigusr2Test:
         server = Test.MakeOriginServer("server")
         Sigusr2Test.__server = server
         for path in ['/first', '/second', '/third']:
-            request_header = {"headers": "GET {} HTTP/1.1\r\n"
-                              "Host: does.not.matter\r\n\r\n".format(path),
-                              "timestamp": "1469733493.993", "body": ""}
+            request_header = {
+                "headers": f"GET {path} HTTP/1.1\r\nHost: does.not.matter\r\n\r\n",
+                "timestamp": "1469733493.993",
+                "body": "",
+            }
             response_header = {"headers": "HTTP/1.1 200 OK\r\n"
                                "Connection: close\r\n"
                                "Cache-control: max-age=85000\r\n\r\n",
@@ -119,8 +121,10 @@ tr1 = Test.AddTestRun("Verify system logs can be rotated")
 diags_test = Sigusr2Test()
 
 # Configure our rotation processes.
-rotate_diags_log = tr1.Processes.Process("rotate_diags_log", "mv {} {}".format(
-    diags_test.diags_log, diags_test.rotated_diags_log))
+rotate_diags_log = tr1.Processes.Process(
+    "rotate_diags_log",
+    f"mv {diags_test.diags_log} {diags_test.rotated_diags_log}",
+)
 
 # Configure the signaling of SIGUSR2 to traffic_server.
 tr1.Processes.Default.Command = diags_test.get_sigusr2_signal_command()
@@ -162,8 +166,10 @@ first_curl_ready = tr2.Processes.Process("first_curl_ready", 'sleep 30')
 first_curl_ready.StartupTimeout = 30
 first_curl_ready.Ready = When.FileContains(configured_test.configured_log, "/first")
 
-rotate_log = tr2.Processes.Process("rotate_log_file", "mv {} {}".format(
-    configured_test.configured_log, configured_test.rotated_configured_log))
+rotate_log = tr2.Processes.Process(
+    "rotate_log_file",
+    f"mv {configured_test.configured_log} {configured_test.rotated_configured_log}",
+)
 
 second_curl = tr2.Processes.Process(
     "second_curl",

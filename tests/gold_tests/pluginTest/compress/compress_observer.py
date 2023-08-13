@@ -21,7 +21,7 @@ log = open('compress_userver.log', 'w')
 
 
 def observe(headers):
-    log.write("{}\n".format(headers['X-Ats-Compress-Test']))
+    log.write(f"{headers['X-Ats-Compress-Test']}\n")
     log.flush()
 
 

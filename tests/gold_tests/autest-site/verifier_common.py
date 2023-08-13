@@ -33,7 +33,7 @@ def create_address_argument(ports):
             is_first = False
         else:
             argument += ','
-        argument += "127.0.0.1:{}".format(port)
+        argument += f"127.0.0.1:{port}"
     argument += '"'
     return argument
 
@@ -45,7 +45,7 @@ def substitute_context_in_replay_file(process, replay_path, context):
     '''
     # Only files for now
     if os.path.isdir(replay_path):
-        raise ValueError(f"Mapping substitution not supported for directories.")
+        raise ValueError("Mapping substitution not supported for directories.")
 
     with open(os.path.join(process.TestDirectory, replay_path), 'r') as replay_file:
         replay_template = Template(replay_file.read())

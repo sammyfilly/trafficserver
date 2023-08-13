@@ -96,7 +96,7 @@ tr = Test.AddTestRun("no plugin test")
 ps = tr.Processes.Default
 ps.StartBefore(server)
 ps.StartBefore(Test.Processes.ts)
-ps.Command = curl_and_args + " http://none/path"
+ps.Command = f"{curl_and_args} http://none/path"
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -104,7 +104,7 @@ tr.StillRunningAfter = server
 # 1 Test
 tr = Test.AddTestRun("basic config, no money trace client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + " http://basic/path"
+ps.Command = f"{curl_and_args} http://basic/path"
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -117,7 +117,11 @@ def maketrace(name):
 # 2 Test
 tr = Test.AddTestRun("basic config, money trace client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://basic/path -H "X-MoneyTrace: ' + maketrace("basic") + '"'
+ps.Command = (
+    f'{curl_and_args} http://basic/path -H "X-MoneyTrace: '
+    + maketrace("basic")
+    + '"'
+)
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -125,7 +129,9 @@ tr.StillRunningAfter = server
 # 3 Test
 tr = Test.AddTestRun("header config, mt client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://header/path -H "mt: ' + maketrace("header") + '"'
+ps.Command = (
+    f'{curl_and_args} http://header/path -H "mt: ' + maketrace("header") + '"'
+)
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -133,7 +139,7 @@ tr.StillRunningAfter = server
 # 4 Test
 tr = Test.AddTestRun("pregen config, but no header passed in")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://pregen/path'
+ps.Command = f'{curl_and_args} http://pregen/path'
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -141,7 +147,11 @@ tr.StillRunningAfter = server
 # 5 Test
 tr = Test.AddTestRun("pregen config, money trace client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://pregen/path -H "X-MoneyTrace: ' + maketrace("pregen") + '"'
+ps.Command = (
+    f'{curl_and_args} http://pregen/path -H "X-MoneyTrace: '
+    + maketrace("pregen")
+    + '"'
+)
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -149,7 +159,9 @@ tr.StillRunningAfter = server
 # 6 Test
 tr = Test.AddTestRun("pregen config, mt client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://pgh/path -H "mt: ' + maketrace("pgh") + '"'
+ps.Command = (
+    f'{curl_and_args} http://pgh/path -H "mt: ' + maketrace("pgh") + '"'
+)
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -157,7 +169,7 @@ tr.StillRunningAfter = server
 # 7 Test
 tr = Test.AddTestRun("create config, money trace client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://create/path'
+ps.Command = f'{curl_and_args} http://create/path'
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -165,7 +177,7 @@ tr.StillRunningAfter = server
 # 8 Test
 tr = Test.AddTestRun("create config, mt client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://cheader/path'
+ps.Command = f'{curl_and_args} http://cheader/path'
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -173,7 +185,7 @@ tr.StillRunningAfter = server
 # 9 Test
 tr = Test.AddTestRun("create config, pregen client header")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://cpregen/path'
+ps.Command = f'{curl_and_args} http://cpregen/path'
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -181,7 +193,11 @@ tr.StillRunningAfter = server
 # 10 Test
 tr = Test.AddTestRun("passthru mode")
 ps = tr.Processes.Default
-ps.Command = curl_and_args + ' http://passthru/path -H "X-MoneyTrace: ' + maketrace("passthru") + '"'
+ps.Command = (
+    f'{curl_and_args} http://passthru/path -H "X-MoneyTrace: '
+    + maketrace("passthru")
+    + '"'
+)
 ps.ReturnCode = 0
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server
@@ -201,7 +217,7 @@ trace_strings = [
 for trace in trace_strings:
     tr = Test.AddTestRun(trace)
     ps = tr.Processes.Default
-    ps.Command = curl_and_args + ' http://pregen/path -H "X-MoneyTrace: ' + trace + '"'
+    ps.Command = f'{curl_and_args} http://pregen/path -H "X-MoneyTrace: {trace}"'
     ps.ReturnCode = 0
     tr.StillRunningAfter = ts
     tr.StillRunningAfter = server
@@ -210,7 +226,7 @@ for trace in trace_strings:
 for trace in trace_strings:
     tr = Test.AddTestRun(trace)
     ps = tr.Processes.Default
-    ps.Command = curl_and_args + ' http://cpregen/path -H "X-MoneyTrace: ' + trace + '"'
+    ps.Command = f'{curl_and_args} http://cpregen/path -H "X-MoneyTrace: {trace}"'
     ps.ReturnCode = 0
     tr.StillRunningAfter = ts
     tr.StillRunningAfter = server

@@ -35,21 +35,22 @@ reactor.callLater(1, callback)
 class factory(http.HTTPFactory):
     class protocol(http.HTTPChannel):
         class requestFactory(http.Request):
-            def requestReceived(ctx, method, target, version):
+            def requestReceived(self, method, target, version):
 
-                ctx.client = None
-                ctx.clientproto = version
+                self.client = None
+                self.clientproto = version
 
                 if target == '/notCacheable':
 
-                    ctx.write('notCacheable')
-                    ctx.finish()
-
+                    self.write('notCacheable')
                 else:
 
-                    ctx.setHeader('Digest', 'SHA-256=BSg5n9c6XBC3jySKsXViB71jhPIoRo3AbCC/gtNlt6k=')
-                    ctx.setHeader('Location', 'http://example.com')
-                    ctx.finish()
+                    self.setHeader(
+                        'Digest', 'SHA-256=BSg5n9c6XBC3jySKsXViB71jhPIoRo3AbCC/gtNlt6k='
+                    )
+                    self.setHeader('Location', 'http://example.com')
+
+                self.finish()
 
 
 origin = tcp.Port(0, factory())
@@ -77,15 +78,18 @@ class factory(protocol.ClientFactory):
             else:
                 print 'not ok 1 - Did the proxy crash?  (The client connection closed.)'
 
-        def connectionMade(ctx):
+        def connectionMade(self):
 
             # A cache MUST NOT store a response to any request, unless: The
             # request method is understood by the cache and defined as being
             # cacheable,
-            ctx.transport.write(
-                'NOTCACHEABLE {0}:{1}/notCacheable HTTP/1.1\r\n\r\nGET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+            self.transport.write(
+                'NOTCACHEABLE {0}:{1}/notCacheable HTTP/1.1\r\n\r\nGET {0}:{1} HTTP/1.1\r\n\r\n'.format(
+                    *origin.socket.getsockname()
+                )
+            )
 
-        def handleResponsePart(ctx, data):
+        def handleResponsePart(self, data):
             try:
                 h, r = data.split('0\r\n\r\n', 1)
 
@@ -94,8 +98,8 @@ class factory(protocol.ClientFactory):
 
             else:
 
-                ctx.firstLine = True
-                ctx.setLineMode(r)
+                self.firstLine = True
+                self.setLineMode(r)
 
         def handleStatus(ctx, version, status, message):
             def handleStatus(version, status, message):

@@ -87,11 +87,7 @@ class TtlDnsTest:
             "proxy.config.hostdb.lookup_timeout": self.queryTimeout,
         })
         if self.configure_serve_stale:
-            if self.exceed_serve_stale:
-                stale_timeout = 1
-            else:
-                stale_timeout = 300
-
+            stale_timeout = 1 if self.exceed_serve_stale else 300
             self.ts.Disk.records_config.update({
                 "proxy.config.hostdb.serve_stale_for": stale_timeout
             })

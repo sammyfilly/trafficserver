@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -61,7 +62,7 @@ ts.Disk.records_config.update({
 config1 = config1.replace("$PORT", str(server.Variables.Port))
 config1 = config1.replace("$ALTPORT", str(server2.Variables.Port))
 
-ts.Disk.File(ts.Variables.CONFIGDIR + "/notexistsconfig.txt", id="config1")
+ts.Disk.File(f"{ts.Variables.CONFIGDIR}/notexistsconfig.txt", id="config1")
 ts.Disk.config1.WriteOn(config1)
 
 ts.Disk.remap_config.AddLine(

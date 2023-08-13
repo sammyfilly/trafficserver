@@ -44,11 +44,11 @@ reactor.callLater(2, callback)
 
 class factory(protocol.Factory):
     class protocol(protocol.Protocol):
-        def connectionMade(ctx):
-            ctx.transport.write('http09\r\n')
+        def connectionMade(self):
+            self.transport.write('http09\r\n')
 
             # The proxy crashes only after the response is complete
-            ctx.transport.loseConnection()
+            self.transport.loseConnection()
 
 
 origin = tcp.Port(0, factory())
@@ -83,8 +83,10 @@ class factory(protocol.ClientFactory):
 
             reactor.callLater(1, tcp.Connector('localhost', 8080, factory(), 30, None, reactor).connect)
 
-        def connectionMade(ctx):
-            ctx.transport.write('GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+        def connectionMade(self):
+            self.transport.write(
+                'GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname())
+            )
 
 
 tcp.Connector('localhost', 8080, factory(), 30, None, reactor).connect()

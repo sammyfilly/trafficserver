@@ -1,6 +1,7 @@
 '''
 Sanitize the ATS-generated custom log file from the all_headers test.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -22,8 +23,7 @@ import re
 from os import path
 import time
 
-rexl = []
-rexl.append((re.compile(r"\{\{Date\}\:\{[^}]*\}\}"), "({__DATE__}}"))
+rexl = [(re.compile(r"\{\{Date\}\:\{[^}]*\}\}"), "({__DATE__}}")]
 rexl.append((re.compile(r"\{\{Expires\}\:\{[^}]*\}\}"), "({__EXPIRES__}}"))
 rexl.append((re.compile(r"\{\{Last-Modified\}\:\{[^}]*\}\}"), "({__LAST_MODIFIED__}}"))
 rexl.append((re.compile(r"\{\{Server\}\:\{ATS/[0-9.]*\}\}"), "({__ATS_SERVER__}}"))

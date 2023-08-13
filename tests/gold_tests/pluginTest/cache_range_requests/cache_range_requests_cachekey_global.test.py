@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -140,12 +141,12 @@ server.addResponse("sessionlog.json", req_fail, res_fail)
 
 # cache range requests plugin remap, working config
 ts.Disk.remap_config.AddLine(
-    'map http://www.example.com http://127.0.0.1:{}'.format(server.Variables.Port)
+    f'map http://www.example.com http://127.0.0.1:{server.Variables.Port}'
 )
 
 # improperly configured cache_range_requests with cachekey
 ts.Disk.remap_config.AddLine(
-    'map http://www.fail.com http://127.0.0.1:{}'.format(server.Variables.Port)
+    f'map http://www.fail.com http://127.0.0.1:{server.Variables.Port}'
 )
 
 # cache debug
@@ -161,14 +162,16 @@ ts.Disk.records_config.update({
     'proxy.config.diags.debug.tags': 'cachekey|cache_range_requests',
 })
 
-curl_and_args = 'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{} -H "x-debug: x-cache-key"'.format(ts.Variables.port)
+curl_and_args = f'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{ts.Variables.port} -H "x-debug: x-cache-key"'
 
 # 0 Test - Fetch full asset via range
 tr = Test.AddTestRun("asset fetch via range")
 ps = tr.Processes.Default
 ps.StartBefore(server, ready=When.PortOpen(server.Variables.Port))
 ps.StartBefore(Test.Processes.ts)
-ps.Command = curl_and_args + ' http://www.example.com/path -r0- -H "uuid: full"'
+ps.Command = (
+    f'{curl_and_args} http://www.example.com/path -r0- -H "uuid: full"'
+)
 ps.ReturnCode = 0
 ps.Streams.stdout.Content = Testers.ContainsExpression(
     "X-Cache-Key: /foo/Range:bytes=0-/path",

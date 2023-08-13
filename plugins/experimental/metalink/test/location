@@ -35,25 +35,26 @@ reactor.callLater(1, callback)
 class factory(http.HTTPFactory):
     class protocol(http.HTTPChannel):
         class requestFactory(http.Request):
-            def requestReceived(ctx, method, target, version):
+            def requestReceived(self, method, target, version):
 
-                ctx.client = None
-                ctx.clientproto = version
+                self.client = None
+                self.clientproto = version
 
                 if target == '/location':
 
                     # Satisfy every case of
                     # proxy.config.http.cache.required_headers
-                    ctx.setHeader('Cache-Control', 'max-age=1')
+                    self.setHeader('Cache-Control', 'max-age=1')
 
-                    ctx.write('location')
-                    ctx.finish()
-
+                    self.write('location')
                 else:
 
-                    ctx.setHeader('Digest', 'SHA-256=5urqGOiF4QeIKbVt80iWvlq1FDno8LoAyxYkssVywQ4=')
-                    ctx.setHeader('Location', 'http://example.com')
-                    ctx.finish()
+                    self.setHeader(
+                        'Digest', 'SHA-256=5urqGOiF4QeIKbVt80iWvlq1FDno8LoAyxYkssVywQ4='
+                    )
+                    self.setHeader('Location', 'http://example.com')
+
+                self.finish()
 
 
 origin = tcp.Port(0, factory())
@@ -85,11 +86,14 @@ class factory(protocol.ClientFactory):
         # that the Location header is not rewritten.  Then get the same
         # response after caching a matching file from a different URL and
         # check that this time the header is rewritten.
-        def connectionMade(ctx):
-            ctx.transport.write(
-                'GET {0}:{1} HTTP/1.1\r\n\r\nGET {0}:{1}/location HTTP/1.1\r\n\r\nGET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+        def connectionMade(self):
+            self.transport.write(
+                'GET {0}:{1} HTTP/1.1\r\n\r\nGET {0}:{1}/location HTTP/1.1\r\n\r\nGET {0}:{1} HTTP/1.1\r\n\r\n'.format(
+                    *origin.socket.getsockname()
+                )
+            )
 
-        def handleResponsePart(ctx, data):
+        def handleResponsePart(self, data):
             try:
                 h, r = data.split('0\r\n\r\n', 1)
 
@@ -98,8 +102,8 @@ class factory(protocol.ClientFactory):
 
             else:
 
-                ctx.firstLine = True
-                ctx.setLineMode(r)
+                self.firstLine = True
+                self.setLineMode(r)
 
         def handleStatus(ctx, version, status, message):
             def handleHeader(k, v):

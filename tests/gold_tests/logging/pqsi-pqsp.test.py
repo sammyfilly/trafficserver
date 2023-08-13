@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -52,7 +53,7 @@ ts.Disk.records_config.update({
     'proxy.config.http.cache.required_headers': 0,
 })
 ts.Disk.remap_config.AddLine(
-    'map / http://localhost:{}/'.format(server.Variables.Port)
+    f'map / http://localhost:{server.Variables.Port}/'
 )
 
 ts.Disk.logging_yaml.AddLines(
@@ -90,6 +91,8 @@ tr.Processes.Default.Command = (
 tr.Processes.Default.ReturnCode = 0
 
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = "sed '1s/^127.0.0.1 [1-6][0-9]*$$/abc/' < " + log_filespec
+tr.Processes.Default.Command = (
+    f"sed '1s/^127.0.0.1 [1-6][0-9]*$$/abc/' < {log_filespec}"
+)
 tr.Processes.Default.Streams.stdout = "gold/pqsi-pqsp.gold"
 tr.Processes.Default.ReturnCode = 0

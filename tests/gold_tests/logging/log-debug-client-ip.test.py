@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -34,7 +35,7 @@ ts.Disk.records_config.update({
     'proxy.config.dns.nameservers': f"127.0.0.1:{nameserver.Variables.Port}",
 })
 ts.Disk.remap_config.AddLine(
-    'map / http://localhost:{}/'.format(server.Variables.http_port)
+    f'map / http://localhost:{server.Variables.http_port}/'
 )
 
 # Verify that the various aspects of the expected debug output for the

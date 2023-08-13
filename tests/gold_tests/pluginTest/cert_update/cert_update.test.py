@@ -1,6 +1,7 @@
 '''
 Test the cert_update plugin.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -114,7 +115,7 @@ s_server = tr.Processes.Process(
         ts.Variables.SSLDir,
         ts.Variables.s_server_port))
 s_server.Ready = When.PortReady(ts.Variables.s_server_port)
-tr.Command = 'curl --verbose --insecure --ipv4 --header "Host: foo.com" https://localhost:{}'.format(ts.Variables.ssl_port)
+tr.Command = f'curl --verbose --insecure --ipv4 --header "Host: foo.com" https://localhost:{ts.Variables.ssl_port}'
 tr.Processes.Default.StartBefore(s_server)
 s_server.Streams.all = "gold/client-cert-pre.gold"
 tr.Processes.Default.ReturnCode = 0

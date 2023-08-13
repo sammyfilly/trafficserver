@@ -100,9 +100,12 @@ tr.Processes.Default.ReturnCode = Any(0, 2)
 def verify_session_count(output):
     global numberOfRequests
     nReq = numberOfRequests * 2
-    session_ids = [line[0:line.find("\n")] for line in str(output).split("session id: ")[1:]]
+    session_ids = [
+        line[: line.find("\n")]
+        for line in str(output).split("session id: ")[1:]
+    ]
     if len(session_ids) != nReq:
-        return "Found {} session_id's, expected {}".format(len(session_ids), nReq)
+        return f"Found {len(session_ids)} session_id's, expected {nReq}"
     return ""
 
 

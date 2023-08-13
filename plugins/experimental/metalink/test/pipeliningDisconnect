@@ -85,14 +85,17 @@ class factory(protocol.ClientFactory):
         reactor.stop()
 
     class protocol(protocol.Protocol):
-        def connectionMade(ctx):
+        def connectionMade(self):
 
             # Somehow these magic words frequently cause
             # INKVConnInternal::do_io_close() to get called after a message
             # is already complete
-            ctx.transport.write(
-                'GET {0}:{1}/pipeliningDisconnect0 HTTP/1.1\r\n\r\nGET {0}:{1}/pipeliningDisconnect1 HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
-            ctx.transport.loseConnection()
+            self.transport.write(
+                'GET {0}:{1}/pipeliningDisconnect0 HTTP/1.1\r\n\r\nGET {0}:{1}/pipeliningDisconnect1 HTTP/1.1\r\n\r\n'.format(
+                    *origin.socket.getsockname()
+                )
+            )
+            self.transport.loseConnection()
 
 
 tcp.Connector('localhost', 8080, factory(), 30, None, reactor).connect()

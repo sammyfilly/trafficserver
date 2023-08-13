@@ -37,7 +37,7 @@ _data_file__file_count = 0
 
 def data_file(data):
     global _data_file__file_count
-    file_path = Test.RunDirectory + f"/tcp_client_in_{_data_file__file_count}"
+    file_path = f"{Test.RunDirectory}/tcp_client_in_{_data_file__file_count}"
     _data_file__file_count += 1
     with open(file_path, "x") as f:
         f.write(data)
@@ -64,21 +64,24 @@ server = Test.MakeOriginServer("server")
 
 def add_server_obj(content_type, path):
     request_header = {
-        "headers": "GET " + path + " HTTP/1.1\r\n" +
-        "Host: just.any.thing\r\n\r\n",
+        "headers": (
+            f"GET {path}" + " HTTP/1.1\r\n" + "Host: just.any.thing\r\n\r\n"
+        ),
         "timestamp": "1469733493.993",
-        "body": ""
+        "body": "",
     }
     response_header = {
-        "headers": "HTTP/1.1 200 OK\r\n" +
-        "Connection: close\r\n" +
-        'Etag: "359670651"\r\n' +
-        "Cache-Control: public, max-age=31536000\r\n" +
-        "Accept-Ranges: bytes\r\n" +
-        "Content-Type: " + content_type + "\r\n" +
-        "\r\n",
+        "headers": "HTTP/1.1 200 OK\r\n"
+        + "Connection: close\r\n"
+        + 'Etag: "359670651"\r\n'
+        + "Cache-Control: public, max-age=31536000\r\n"
+        + "Accept-Ranges: bytes\r\n"
+        + "Content-Type: "
+        + content_type
+        + "\r\n"
+        + "\r\n",
         "timestamp": "1469733493.993",
-        "body": "Content for " + path + "\n"
+        "body": f"Content for {path}" + "\n",
     }
     server.addResponse("sessionfile.log", request_header, response_header)
 
