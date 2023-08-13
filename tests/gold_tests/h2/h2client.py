@@ -157,7 +157,7 @@ def main():
                         help="Print the response body")
     args = parser.parse_args()
 
-    for i in range(args.repeat):
+    for _ in range(args.repeat):
         makerequest(args.port, args.path, args.verify_default_body, args.print_body)
 
 

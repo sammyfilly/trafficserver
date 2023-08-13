@@ -42,7 +42,7 @@ def observe(headers):
 
                 byCount += 1
 
-                if ((byCount == 4) or (byCount == 5)) and regexByEqualUuid.match(content):  # "by" should give UUID
+                if byCount in {4, 5} and regexByEqualUuid.match(content):  # "by" should give UUID
 
                     # I don't think there is a way to know what UUID traffic_server generates, so I just do a crude format
                     # check and make sure the same value is used consistently.

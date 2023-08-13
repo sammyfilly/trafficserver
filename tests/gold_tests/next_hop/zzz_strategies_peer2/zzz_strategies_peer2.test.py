@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -91,18 +92,22 @@ for i in range(num_peer):
         'proxy.config.http.parent_proxy.self_detect': 1,
     })
 
-    ts.Disk.File(ts.Variables.CONFIGDIR + "/strategies.yaml", id="strategies", typename="ats:config")
+    ts.Disk.File(
+        f"{ts.Variables.CONFIGDIR}/strategies.yaml",
+        id="strategies",
+        typename="ats:config",
+    )
     s = ts.Disk.strategies
     s.AddLine("groups:")
     s.AddLine("  - &peer_group")
     for j in range(num_peer):
         s.AddLine(f"    - host: ts_peer{j}")
-        s.AddLine(f"      protocol:")
-        s.AddLine(f"        - scheme: http")
+        s.AddLine("      protocol:")
+        s.AddLine("        - scheme: http")
         s.AddLine(f"          port: {ts_peer[j].Variables.port}")
         # The health check URL does not seem to be used currently.
         # s.AddLine(f"          health_check_url: http://ts_peer{j}:{ts_peer[j].Variables.port}")
-        s.AddLine(f"      weight: 1.0")
+        s.AddLine("      weight: 1.0")
     s.AddLines([
         "strategies:",
         "  - strategy: the-strategy",
@@ -156,14 +161,11 @@ for i in range(num_object):
     tr.Processes.Default.Streams.stdout = "body.gold"
     tr.Processes.Default.ReturnCode = 0
 
-normalize_ports = ""
-for i in range(num_upstream):
-    normalize_ports += f" | sed 's/:{ts_upstream[i].Variables.port}/:UP_PORT{i}/'"
-
-tr = Test.AddTestRun()
-tr.Processes.Default.Command = (
-    "grep -e '^+++' -e '^[A-Z].*TTP/' -e '^.alts. --' -e 'PARENT_SPECIFIED' trace_peer*.log"
-    " | sed 's/^.*(next_hop) [^ ]* //' | sed 's/[.][0-9]*$$//' " + normalize_ports
+normalize_ports = "".join(
+    f" | sed 's/:{ts_upstream[i].Variables.port}/:UP_PORT{i}/'"
+    for i in range(num_upstream)
 )
+tr = Test.AddTestRun()
+tr.Processes.Default.Command = f"grep -e '^+++' -e '^[A-Z].*TTP/' -e '^.alts. --' -e 'PARENT_SPECIFIED' trace_peer*.log | sed 's/^.*(next_hop) [^ ]* //' | sed 's/[.][0-9]*$$//' {normalize_ports}"
 tr.Processes.Default.Streams.stdout = "trace.gold"
 tr.Processes.Default.ReturnCode = 0

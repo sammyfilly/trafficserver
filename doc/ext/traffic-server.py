@@ -163,11 +163,8 @@ class TSConfVar(std.Target):
     # External entry point
     def run(self):
         env = self.state.document.settings.env
-        cv_default = None
-        cv_scope, cv_name, cv_type = self.arguments[0:3]
-        if (len(self.arguments) > 3):
-            cv_default = self.arguments[3]
-
+        cv_scope, cv_name, cv_type = self.arguments[:3]
+        cv_default = self.arguments[3] if (len(self.arguments) > 3) else None
         # First, make a generic desc() node to be the parent.
         node = sphinx.addnodes.desc()
         node.document = self.state.document
@@ -313,11 +310,8 @@ class TSStat(std.Target):
     # External entry point
     def run(self):
         env = self.state.document.settings.env
-        stat_example = None
-        stat_group, stat_name, stat_type = self.arguments[0:3]
-        if (len(self.arguments) > 3):
-            stat_example = self.arguments[3]
-
+        stat_group, stat_name, stat_type = self.arguments[:3]
+        stat_example = self.arguments[3] if (len(self.arguments) > 3) else None
         # First, make a generic desc() node to be the parent.
         node = sphinx.addnodes.desc()
         node.document = self.state.document
@@ -326,7 +320,7 @@ class TSStat(std.Target):
         # Next, make a signature node. This creates a permalink and a
         # highlighted background when the link is selected.
         title = sphinx.addnodes.desc_signature(stat_name, '')
-        title['ids'].append(nodes.make_id('stat-' + stat_name))
+        title['ids'].append(nodes.make_id(f'stat-{stat_name}'))
         title['names'].append(stat_name)
         title['first'] = False
         title['objtype'] = 'stat'
@@ -437,8 +431,6 @@ class TrafficServerDomain(Domain):
                 del stat_list[var]
 
     def find_doc(self, key, obj_type):
-        zret = None
-
         if obj_type == 'cv':
             obj_list = self.data['cv']
         elif obj_type == 'stat':
@@ -446,14 +438,10 @@ class TrafficServerDomain(Domain):
         else:
             obj_list = None
 
-        if obj_list and key in obj_list:
-            zret = obj_list[key]
-
-        return zret
+        return obj_list[key] if obj_list and key in obj_list else None
 
     def resolve_xref(self, env, src_doc, builder, obj_type, target, node, cont_node):
-        dst_doc = self.find_doc(target, obj_type)
-        if (dst_doc):
+        if dst_doc := self.find_doc(target, obj_type):
             return sphinx.util.nodes.make_refnode(builder, src_doc, dst_doc, nodes.make_id(target), cont_node, 'records.yaml')
 
     # Python 2/3 compat - iteritems is 2, items is 3
@@ -481,7 +469,7 @@ CONFIGURE_AC = os.path.join(REPO_ROOT, 'configure.ac')
 with open(CONFIGURE_AC, 'r') as f:
     contents = f.read()
     match = re.compile(r'm4_define\(\[TS_VERSION_S],\[(.*?)]\)').search(contents)
-    autoconf_version = '.'.join(match.group(1).split('.', 2)[:2] + ['x'])
+    autoconf_version = '.'.join(match[1].split('.', 2)[:2] + ['x'])
 
 # get the current branch the local repository is on
 REPO_GIT_DIR = os.path.join(REPO_ROOT, ".git")

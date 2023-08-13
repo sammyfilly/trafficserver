@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -78,19 +79,23 @@ ts.Disk.records_config.update({
     'proxy.config.http.parent_proxy.self_detect': 0,
 })
 
-ts.Disk.File(ts.Variables.CONFIGDIR + "/strategies.yaml", id="strategies", typename="ats:config")
+ts.Disk.File(
+    f"{ts.Variables.CONFIGDIR}/strategies.yaml",
+    id="strategies",
+    typename="ats:config",
+)
 s = ts.Disk.strategies
 s.AddLine("groups:")
 s.AddLine("  - &g1")
 for i in range(num_nh):
     dns.addRecords(records={f"next_hop{i}": ["127.0.0.1"]})
     s.AddLine(f"    - host: next_hop{i}")
-    s.AddLine(f"      protocol:")
-    s.AddLine(f"        - scheme: http")
+    s.AddLine("      protocol:")
+    s.AddLine("        - scheme: http")
     s.AddLine(f"          port: {ts_nh[i].Variables.port}")
     # The health check URL does not seem to be used currently.
     # s.AddLine(f"          health_check_url: http://next_hop{i}:{ts_nh[i].Variables.port}")
-    s.AddLine(f"      weight: 1.0")
+    s.AddLine("      weight: 1.0")
 
 s.AddLines([
     "strategies:",
@@ -125,7 +130,7 @@ tr = Test.AddTestRun()
 tr.Processes.Default.StartBefore(server)
 tr.Processes.Default.StartBefore(dns)
 for i in range(num_nh):
-    if (i != 3) and (i != 6):
+    if i not in [3, 6]:
         tr.Processes.Default.StartBefore(ts_nh[i])
 tr.Processes.Default.StartBefore(Test.Processes.ts)
 tr.Processes.Default.Command = 'echo start TS, HTTP server, DNS server and all but 2 next hop TSes'

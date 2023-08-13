@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -46,13 +47,17 @@ response_header = {"headers": "HTTP/1.1 200 OK\r\nConnection: close\r\n\r\n",
 # add response to the server dictionary
 server.addResponse("sessionfile.log", request_header, response_header)
 
-ts.Disk.remap_config.AddLines({
-    'map / http://127.0.0.1:{}/'.format(server.Variables.Port),
-    'map http://hello http://127.0.0.1:{}/'.format(server.Variables.Port) +
-    ' @plugin=tslua.so @pparam={}/hello.lua'.format(Test.RunDirectory)
-})
+ts.Disk.remap_config.AddLines(
+    {
+        f'map / http://127.0.0.1:{server.Variables.Port}/',
+        (
+            f'map http://hello http://127.0.0.1:{server.Variables.Port}/'
+            + f' @plugin=tslua.so @pparam={Test.RunDirectory}/hello.lua'
+        ),
+    }
+)
 
-ts.Disk.plugin_config.AddLine('tslua.so {}/global.lua'.format(Test.RunDirectory))
+ts.Disk.plugin_config.AddLine(f'tslua.so {Test.RunDirectory}/global.lua')
 
 ts.Disk.records_config.update({
     'proxy.config.diags.debug.enabled': 1,
@@ -60,7 +65,9 @@ ts.Disk.records_config.update({
     'proxy.config.plugin.lua.max_states': 4,
 })
 
-curl_and_args = 'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{} '.format(ts.Variables.port)
+curl_and_args = (
+    f'curl -s -D /dev/stdout -o /dev/stderr -x localhost:{ts.Variables.port} '
+)
 
 # 0 Test - Check for configured lua states
 tr = Test.AddTestRun("Lua states")
@@ -76,7 +83,7 @@ tr.StillRunningAfter = ts
 # 1 Test - Exercise lua script
 tr = Test.AddTestRun("Lua hello")
 ps = tr.Processes.Default  # alias
-ps.Command = curl_and_args + ' http://hello/hello'
+ps.Command = f'{curl_and_args} http://hello/hello'
 ps.ReturnCode = 0
 ps.Streams.stderr.Content = Testers.ContainsExpression("Hello, World", "hello world content")
 tr.StillRunningAfter = ts

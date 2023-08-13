@@ -64,7 +64,9 @@ class TestLogRetention:
         Create a run to initialize the server and traffic_server processes so
         the caller doesn't have to.
         """
-        tr = Test.AddTestRun("Initialize processes for ts{}".format(TestLogRetention.__ts_counter - 1))
+        tr = Test.AddTestRun(
+            f"Initialize processes for ts{TestLogRetention.__ts_counter - 1}"
+        )
         tr.Processes.Default.Command = self.get_curl_command()
         tr.Processes.Default.ReturnCode = 0
         if not TestLogRetention.__server_is_started:
@@ -388,15 +390,11 @@ test.tr.StillRunningAfter = test.ts
 test.tr.StillRunningAfter = test.server
 
 
-#
-# Test 5: Verify log deletion does not happen when it is disabled.
-#
-auto_delete_disabled = twelve_meg_log_space.copy()
-auto_delete_disabled.update({
+auto_delete_disabled = twelve_meg_log_space | {
     'proxy.config.log.auto_delete_rolled_files': 0,
     # Verify that setting a hostname changes the hostname used in rolled logs.
     'proxy.config.log.hostname': 'my_hostname',
-})
+}
 test = TestLogRetention(auto_delete_disabled,
                         "Verify log deletion does not happen when auto-delet is disabled.")
 
@@ -521,7 +519,9 @@ test.ts.Disk.traffic_out.Content += Testers.ContainsExpression(
     "Verify that space was reclaimed")
 
 # Touch logging.yaml so the config reload applies to logging objects.
-test.tr.Processes.Default.Command = "touch " + test.ts.Disk.logging_yaml.AbsRunTimePath
+test.tr.Processes.Default.Command = (
+    f"touch {test.ts.Disk.logging_yaml.AbsRunTimePath}"
+)
 test.tr.Processes.Default.ReturnCode = 0
 test.tr.StillRunningAfter = test.ts
 test.tr.StillRunningAfter = test.server

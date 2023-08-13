@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -111,9 +112,13 @@ tr.Processes.Default.Streams.stdout += Testers.ExcludesExpression("continations_
 tr.Processes.Default.Streams.stdout += Testers.ExcludesExpression("continations_verify.txn.close.1 0", 'should be nonzero')
 tr.Processes.Default.Streams.stdout += Testers.ExcludesExpression("continations_verify.txn.close.2 0", 'should be nonzero')
 tr.Processes.Default.Streams.stdout += Testers.ContainsExpression(
-    "continuations_verify.txn.close.1 {}".format(numberOfRequests), 'should be the number of transactions we made')
+    f"continuations_verify.txn.close.1 {numberOfRequests}",
+    'should be the number of transactions we made',
+)
 tr.Processes.Default.Streams.stdout += Testers.ContainsExpression(
-    "continuations_verify.txn.close.2 {}".format(numberOfRequests), 'should be the number of transactions we made')
+    f"continuations_verify.txn.close.2 {numberOfRequests}",
+    'should be the number of transactions we made',
+)
 tr.StillRunningAfter = ts
 
 tr = Test.AddTestRun("Check Txn")

@@ -107,7 +107,7 @@ class doctree_resolved:
 
                         filename = compound.get('refid') + '.xml'
                         if filename not in cache:
-                            cache[filename] = etree.parse('xml/' + filename)
+                            cache[filename] = etree.parse(f'xml/{filename}')
 
                         # An enumvalue has no location
                         memberdef, = cache[filename].xpath(
@@ -123,19 +123,19 @@ class doctree_resolved:
                         # Declarations have no bodystart
                         line = location.get('bodystart') or location.get('line')
 
-                        emphasis = nodes.emphasis('', ' ' + filename + ' line ' + line)
+                        emphasis = nodes.emphasis('', f' {filename} line {line}')
 
                         # Use a relative link if the output is HTML, otherwise fall
                         # back on an absolute link to Read the Docs.  I haven't
                         # figured out how to get the page name for e.g. a struct
                         # from the XML files so ape Doxygen escapeCharsInString()
                         # instead.
-                        refuri = 'api/' + escape(filename) + '_source.html#l' + line.rjust(5, '0')
+                        refuri = f'api/{escape(filename)}_source.html#l' + line.rjust(5, '0')
                         if self.app.builder.name == 'html':
                             refuri = osutil.relative_uri(self.app.builder.get_target_uri(self.docname), refuri)
 
                         else:
-                            refuri = 'http://docs.trafficserver.apache.org/en/latest/' + refuri
+                            refuri = f'http://docs.trafficserver.apache.org/en/latest/{refuri}'
 
                         reference = nodes.reference('', '', emphasis, classes=[
                                                     'viewcode-link'], reftitle='Source code', refuri=refuri)

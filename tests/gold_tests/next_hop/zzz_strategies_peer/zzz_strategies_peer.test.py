@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -74,6 +75,7 @@ ts_peer = []
 for i in range(num_peer):
     ts = Test.MakeATSProcess(f"ts_peer{i}", use_traffic_out=False, command=f"traffic_server 2> trace_peer{i}.log")
     ts_peer.append(ts)
+suffix = " @strategy=the-strategy @plugin=cachekey.so @pparam=--uri-type=remap @pparam=--capture-prefix=/(.*):(.*)/$1/"
 for i in range(num_peer):
     ts = ts_peer[i]
     dns.addRecords(records={f"ts_peer{i}": ["127.0.0.1"]})
@@ -91,27 +93,31 @@ for i in range(num_peer):
         'proxy.config.http.parent_proxy.self_detect': 1,
     })
 
-    ts.Disk.File(ts.Variables.CONFIGDIR + "/strategies.yaml", id="strategies", typename="ats:config")
+    ts.Disk.File(
+        f"{ts.Variables.CONFIGDIR}/strategies.yaml",
+        id="strategies",
+        typename="ats:config",
+    )
     s = ts.Disk.strategies
     s.AddLine("groups:")
     s.AddLine("  - &peer_group")
     for j in range(num_peer):
         s.AddLine(f"    - host: ts_peer{j}")
-        s.AddLine(f"      protocol:")
-        s.AddLine(f"        - scheme: http")
+        s.AddLine("      protocol:")
+        s.AddLine("        - scheme: http")
         s.AddLine(f"          port: {ts_peer[j].Variables.port}")
         # The health check URL does not seem to be used currently.
         # s.AddLine(f"          health_check_url: http://ts_peer{j}:{ts_peer[j].Variables.port}")
-        s.AddLine(f"      weight: 1.0")
+        s.AddLine("      weight: 1.0")
     s.AddLine("  - &peer_upstream")
     for j in range(num_upstream):
         s.AddLine(f"    - host: ts_upstream{j}")
-        s.AddLine(f"      protocol:")
-        s.AddLine(f"        - scheme: http")
+        s.AddLine("      protocol:")
+        s.AddLine("        - scheme: http")
         s.AddLine(f"          port: {ts_upstream[j].Variables.port}")
         # The health check URL does not seem to be used currently.
         # s.AddLine(f"          health_check_url: http://ts_upstream{j}:{ts_upstream[j].Variables.port}")
-        s.AddLine(f"      weight: 1.0")
+        s.AddLine("      weight: 1.0")
     s.AddLines([
         "strategies:",
         "  - strategy: the-strategy",
@@ -135,11 +141,12 @@ for i in range(num_peer):
         #"        - passive",
     ])
 
-    suffix = " @strategy=the-strategy @plugin=cachekey.so @pparam=--uri-type=remap @pparam=--capture-prefix=/(.*):(.*)/$1/"
-    ts.Disk.remap_config.AddLines([
-        "map http://dummy.com http://not_used" + suffix,
-        "map http://not_used http://also_not_used" + suffix,
-    ])
+    ts.Disk.remap_config.AddLines(
+        [
+            f"map http://dummy.com http://not_used{suffix}",
+            f"map http://not_used http://also_not_used{suffix}",
+        ]
+    )
 
 tr = Test.AddTestRun()
 tr.Processes.Default.StartBefore(server)

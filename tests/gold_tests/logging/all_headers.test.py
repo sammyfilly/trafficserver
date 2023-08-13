@@ -67,13 +67,10 @@ Test.Disk.File(sanitized_log_path, exists=True, content='gold/test_all_headers.g
 
 def reallyLong():
     value = 'abcdefghijklmnop'
-    value = value + value
-    value = value + value
-    value = value + value
-    retval = ""
-    for i in range(3):
-        retval += ' -H "x-header{}: {}"'.format(i, value)
-    return retval
+    value += value
+    value += value
+    value += value
+    return "".join(f' -H "x-header{i}: {value}"' for i in range(3))
 
 
 tr = Test.AddTestRun()

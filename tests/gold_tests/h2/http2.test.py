@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -82,10 +83,8 @@ server.addResponse("sessionlog.json",
                        "timestamp": "1469733493.993",
                        "body": "0123456789"})
 
-big_post_body_file = open(os.path.join(Test.RunDirectory, "big_post_body"), "w")
-big_post_body_file.write(big_post_body)
-big_post_body_file.close()
-
+with open(os.path.join(Test.RunDirectory, "big_post_body"), "w") as big_post_body_file:
+    big_post_body_file.write(big_post_body)
 # For Test Case 8 - /huge_resp_hdrs
 server.addResponse("sessionlog.json",
                    {"headers": "GET /huge_resp_hdrs HTTP/1.1\r\nHost: www.example.com\r\n\r\n",

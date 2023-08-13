@@ -1,5 +1,6 @@
 '''
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -30,7 +31,9 @@ Test.SkipUnless(
     Condition.HasATSFeature('TS_HAS_BROTLI')
 )
 
-server = Test.MakeOriginServer("server", options={'--load': '{}/compress_observer.py'.format(Test.TestDirectory)})
+server = Test.MakeOriginServer(
+    "server", options={'--load': f'{Test.TestDirectory}/compress_observer.py'}
+)
 
 
 def repeat(str, count):
@@ -43,7 +46,7 @@ def repeat(str, count):
 
 # Need a fairly big body, otherwise the plugin will refuse to compress
 body = repeat("lets go surfin now everybodys learnin how\n", 24)
-body = body + "lets go surfin now everybodys learnin how"
+body = f"{body}lets go surfin now everybodys learnin how"
 
 # expected response from the origin server
 response_header = {
@@ -59,7 +62,9 @@ response_header = {
 for i in range(3):
     # add request/response to the server dictionary
     request_header = {
-        "headers": "GET /obj{} HTTP/1.1\r\nHost: just.any.thing\r\n\r\n".format(i), "timestamp": "1469733493.993", "body": ""
+        "headers": f"GET /obj{i} HTTP/1.1\r\nHost: just.any.thing\r\n\r\n",
+        "timestamp": "1469733493.993",
+        "body": "",
     }
     server.addResponse("sessionfile.log", request_header, response_header)
 
@@ -74,19 +79,27 @@ server.addResponse("sessionfile.log", post_request_header, response_header)
 
 def curl(ts, idx, encodingList):
     return (
-        "curl --verbose --proxy http://127.0.0.1:{}".format(ts.Variables.port) +
-        " --header 'X-Ats-Compress-Test: {}/{}'".format(idx, encodingList) +
-        " --header 'Accept-Encoding: {0}' 'http://ae-{1}/obj{1}'".format(encodingList, idx) +
-        " 2>> compress_long.log ; printf '\n===\n' >> compress_long.log"
+        (
+            f"curl --verbose --proxy http://127.0.0.1:{ts.Variables.port}"
+            + f" --header 'X-Ats-Compress-Test: {idx}/{encodingList}'"
+        )
+        + " --header 'Accept-Encoding: {0}' 'http://ae-{1}/obj{1}'".format(
+            encodingList, idx
+        )
+        + " 2>> compress_long.log ; printf '\n===\n' >> compress_long.log"
     )
 
 
 def curl_post(ts, idx, encodingList):
     return (
-        "curl --verbose -d 'knock knock' --proxy http://127.0.0.1:{}".format(ts.Variables.port) +
-        " --header 'X-Ats-Compress-Test: {}/{}'".format(idx, encodingList) +
-        " --header 'Accept-Encoding: {0}' 'http://ae-{1}/obj{1}'".format(encodingList, idx) +
-        " 2>> compress_long.log ; printf '\n===\n' >> compress_long.log"
+        (
+            f"curl --verbose -d 'knock knock' --proxy http://127.0.0.1:{ts.Variables.port}"
+            + f" --header 'X-Ats-Compress-Test: {idx}/{encodingList}'"
+        )
+        + " --header 'Accept-Encoding: {0}' 'http://ae-{1}/obj{1}'".format(
+            encodingList, idx
+        )
+        + " 2>> compress_long.log ; printf '\n===\n' >> compress_long.log"
     )
 
 
@@ -106,22 +119,28 @@ ts.Setup.Copy("compress.config")
 ts.Setup.Copy("compress2.config")
 
 ts.Disk.remap_config.AddLine(
-    'map http://ae-0/ http://127.0.0.1:{}/'.format(server.Variables.Port) +
-    ' @plugin=compress.so @pparam={}/compress.config'.format(Test.RunDirectory)
+    (
+        f'map http://ae-0/ http://127.0.0.1:{server.Variables.Port}/'
+        + f' @plugin=compress.so @pparam={Test.RunDirectory}/compress.config'
+    )
 )
 ts.Disk.remap_config.AddLine(
-    'map http://ae-1/ http://127.0.0.1:{}/'.format(server.Variables.Port) +
-    ' @plugin=conf_remap.so @pparam=proxy.config.http.normalize_ae=1' +
-    ' @plugin=compress.so @pparam={}/compress.config'.format(Test.RunDirectory)
+    (
+        f'map http://ae-1/ http://127.0.0.1:{server.Variables.Port}/ @plugin=conf_remap.so @pparam=proxy.config.http.normalize_ae=1'
+        + f' @plugin=compress.so @pparam={Test.RunDirectory}/compress.config'
+    )
 )
 ts.Disk.remap_config.AddLine(
-    'map http://ae-2/ http://127.0.0.1:{}/'.format(server.Variables.Port) +
-    ' @plugin=conf_remap.so @pparam=proxy.config.http.normalize_ae=2' +
-    ' @plugin=compress.so @pparam={}/compress2.config'.format(Test.RunDirectory)
+    (
+        f'map http://ae-2/ http://127.0.0.1:{server.Variables.Port}/ @plugin=conf_remap.so @pparam=proxy.config.http.normalize_ae=2'
+        + f' @plugin=compress.so @pparam={Test.RunDirectory}/compress2.config'
+    )
 )
 ts.Disk.remap_config.AddLine(
-    'map http://ae-3/ http://127.0.0.1:{}/'.format(server.Variables.Port) +
-    ' @plugin=compress.so @pparam={}/compress.config'.format(Test.RunDirectory)
+    (
+        f'map http://ae-3/ http://127.0.0.1:{server.Variables.Port}/'
+        + f' @plugin=compress.so @pparam={Test.RunDirectory}/compress.config'
+    )
 )
 
 for i in range(3):

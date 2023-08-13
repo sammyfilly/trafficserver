@@ -173,7 +173,7 @@ def _setup_port_queue(amount=1000):
         # some docker setups don't have sbin setup correctly
         new_env = os.environ.copy()
         new_env['PATH'] = "/sbin:/usr/sbin:" + new_env['PATH']
-        if 'Darwin' == platform.system():
+        if platform.system() == 'Darwin':
             dmin = subprocess.check_output(
                 ["sysctl", "net.inet.ip.portrange.first"],
                 env=new_env
@@ -243,8 +243,7 @@ def _get_port_by_bind():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind(('', 0))  # bind to all interfaces on an ephemeral port
-    port = sock.getsockname()[1]
-    return port
+    return sock.getsockname()[1]
 
 
 def get_port(obj, name):

@@ -63,13 +63,13 @@ def convert_signal_name_to_signal(signal_name):
     if signal_name.startswith('-'):
         signal_name = signal_name[1:]
     if not signal_name.startswith('SIG'):
-        signal_name = 'SIG' + signal_name
+        signal_name = f'SIG{signal_name}'
     for signal_value in dir(signal):
         if not signal_value.startswith('SIG'):
             continue
         if signal_name == signal_value:
             return getattr(signal, signal_value)
-    raise ValueError("Could not find a signal matching {}".format(signal_name))
+    raise ValueError(f"Could not find a signal matching {signal_name}")
 
 
 def parse_args():

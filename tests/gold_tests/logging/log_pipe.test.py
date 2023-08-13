@@ -34,7 +34,7 @@ def get_ts(logging_config):
     Create a Traffic Server process.
     """
     global ts_counter
-    ts = Test.MakeATSProcess("ts{}".format(ts_counter))
+    ts = Test.MakeATSProcess(f"ts{ts_counter}")
     ts_counter += 1
 
     ts.Disk.records_config.update({
@@ -76,12 +76,14 @@ logging:
 pipe_path = os.path.join(ts.Variables.LOGDIR, pipe_name)
 
 ts.Disk.traffic_out.Content += Testers.ContainsExpression(
-    "Created named pipe .*{}".format(pipe_name),
-    "Verify that the named pipe was created")
+    f"Created named pipe .*{pipe_name}",
+    "Verify that the named pipe was created",
+)
 
 ts.Disk.traffic_out.Content += Testers.ContainsExpression(
-    "no readers for pipe .*{}".format(pipe_name),
-    "Verify that no readers for the pipe was detected.")
+    f"no readers for pipe .*{pipe_name}",
+    "Verify that no readers for the pipe was detected.",
+)
 
 ts.Disk.traffic_out.Content += Testers.ExcludesExpression(
     "New buffer size for pipe".format(pipe_name),
@@ -91,7 +93,9 @@ curl = tr.Processes.Process("client_request", 'curl "http://127.0.0.1:{0}" --ver
     ts.Variables.port))
 
 reader_output = os.path.join(ts.Variables.LOGDIR, "reader_output")
-pipe_reader = tr.Processes.Process("pipe_reader", 'cat {} | tee {}'.format(pipe_path, reader_output))
+pipe_reader = tr.Processes.Process(
+    "pipe_reader", f'cat {pipe_path} | tee {reader_output}'
+)
 
 # Create an arbitrary process that just sleeps so that we can provide a wait
 # condition upon the log being emitted. The test won't wait this entire sleep
@@ -137,16 +141,19 @@ logging:
 pipe_path = os.path.join(ts.Variables.LOGDIR, pipe_name)
 
 ts.Disk.traffic_out.Content += Testers.ContainsExpression(
-    "Created named pipe .*{}".format(pipe_name),
-    "Verify that the named pipe was created")
+    f"Created named pipe .*{pipe_name}",
+    "Verify that the named pipe was created",
+)
 
 ts.Disk.traffic_out.Content += Testers.ContainsExpression(
-    "no readers for pipe .*{}".format(pipe_name),
-    "Verify that no readers for the pipe was detected.")
+    f"no readers for pipe .*{pipe_name}",
+    "Verify that no readers for the pipe was detected.",
+)
 
 ts.Disk.traffic_out.Content += Testers.ContainsExpression(
-    "Previous buffer size for pipe .*{}".format(pipe_name),
-    "Verify that the named pipe's size was adjusted")
+    f"Previous buffer size for pipe .*{pipe_name}",
+    "Verify that the named pipe's size was adjusted",
+)
 
 # See fcntl:
 #   "Attempts to set the pipe capacity below the page size
@@ -157,8 +164,9 @@ ts.Disk.traffic_out.Content += Testers.ContainsExpression(
 # pipe_buffer_is_larger_than.py helper script to verify that the pipe grew in
 # size.
 ts.Disk.traffic_out.Content += Testers.ContainsExpression(
-    "New buffer size for pipe.*{}".format(pipe_name),
-    "Verify that the named pipe's size was adjusted")
+    f"New buffer size for pipe.*{pipe_name}",
+    "Verify that the named pipe's size was adjusted",
+)
 buffer_verifier = "pipe_buffer_is_larger_than.py"
 tr.Setup.Copy(buffer_verifier)
 verify_buffer_size = tr.Processes.Process(
@@ -173,7 +181,9 @@ curl = tr.Processes.Process("client_request", 'curl "http://127.0.0.1:{0}" --ver
     ts.Variables.port))
 
 reader_output = os.path.join(ts.Variables.LOGDIR, "reader_output")
-pipe_reader = tr.Processes.Process("pipe_reader", 'cat {} | tee {}'.format(pipe_path, reader_output))
+pipe_reader = tr.Processes.Process(
+    "pipe_reader", f'cat {pipe_path} | tee {reader_output}'
+)
 
 # Create an arbitrary process that just sleeps so that we can provide a wait
 # condition upon the log being emitted. The test won't wait this entire sleep

@@ -142,6 +142,8 @@ tr.Processes.Default.Streams.stdout += Testers.ExcludesExpression(
     "ssntxnorder_verify.txn.start 0", 'should be nonzero')
 # and we receive the same number of transactions as we asked it to make
 tr.Processes.Default.Streams.stdout += Testers.ContainsExpression(
-    "ssntxnorder_verify.txn.start {}".format(numberOfRequests), 'should be the number of transactions we made')
+    f"ssntxnorder_verify.txn.start {numberOfRequests}",
+    'should be the number of transactions we made',
+)
 tr.StillRunningAfter = ts
 tr.StillRunningAfter = server

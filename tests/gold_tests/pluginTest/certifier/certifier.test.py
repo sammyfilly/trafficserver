@@ -100,10 +100,12 @@ class DynamicCertTest:
     def run(self):
         # the certifier plugin generates the cert and store it in a directory
         # named with the first three character of the md5 hash of the hostname
-        genCertPath = os.path.join(self.certPathDest,
-                                   'store',
-                                   str(hashlib.md5(self.host.encode('utf-8')).hexdigest()[:3]),
-                                   self.host + ".crt")
+        genCertPath = os.path.join(
+            self.certPathDest,
+            'store',
+            str(hashlib.md5(self.host.encode('utf-8')).hexdigest()[:3]),
+            f"{self.host}.crt",
+        )
         self.verifyCertNotExist(genCertPath)
         self.runHTTPSTraffic()
         self.verifyCert(genCertPath)

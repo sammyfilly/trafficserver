@@ -86,8 +86,10 @@ class factory(protocol.ClientFactory):
             else:
                 print 'not ok 1 - Did the proxy crash?  (The client connection closed.)'
 
-        def connectionMade(ctx):
-            ctx.transport.write('GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+        def connectionMade(self):
+            self.transport.write(
+                'GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname())
+            )
 
         def handleHeader(ctx, k, v):
             if k.lower() == 'content-length':
@@ -104,7 +106,7 @@ class factory(protocol.ClientFactory):
         # Data that was already received will get processed (the end of
         # the headers), then shutdown events will fire (connections will
         # get closed), and then finally the reactor will grind to a halt.
-        def handleResponseEnd(ctx):
+        def handleResponseEnd(self):
             pass
 
         def handleResponsePart(ctx, data):

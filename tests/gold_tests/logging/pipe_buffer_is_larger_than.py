@@ -46,17 +46,17 @@ def test_fifo(fifo, minimum_buffer_size):
         buffer_size = fcntl.fcntl(fifo_fd, F_GETPIPE_SZ)
 
         if buffer_size >= int(minimum_buffer_size):
-            print("Success. Size is: {} which is larger than: {}".format(
-                buffer_size,
-                minimum_buffer_size))
+            print(
+                f"Success. Size is: {buffer_size} which is larger than: {minimum_buffer_size}"
+            )
             return 0
         else:
-            print("Fail. Size is: {} which is smaller than: {}".format(
-                buffer_size,
-                minimum_buffer_size))
+            print(
+                f"Fail. Size is: {buffer_size} which is smaller than: {minimum_buffer_size}"
+            )
             return 1
     except Exception as e:
-        print("Unable to open fifo, error: {}".format(str(e)))
+        print(f"Unable to open fifo, error: {str(e)}")
         return 2
 
 

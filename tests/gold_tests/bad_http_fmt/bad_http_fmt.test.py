@@ -72,36 +72,34 @@ def server_cmd(resp_id):
 tr = Test.AddTestRun()
 tr.Processes.Default.StartBefore(ts)
 tr.Processes.Default.Command = (
-    server_cmd(1) +
-    fr" ; printf 'GET {random_path}HTTP/1.0\r\n" +
-    fr"Host: localhost:{Test.Variables.server_port}\r\n" +
-    r"X-Req-Id: 0\r\n\r\n'" +
-    f" | nc localhost {ts.Variables.port} >> client.log" +
-    " ; echo '======' >> client.log"
+    f"{server_cmd(1)} ; printf 'GET {random_path}HTTP/1.0\r\n"
+    + f"Host: localhost:{Test.Variables.server_port}\r\n"
+    + r"X-Req-Id: 0\r\n\r\n'"
+    + f" | nc localhost {ts.Variables.port} >> client.log"
+    + " ; echo '======' >> client.log"
 )
 tr.Processes.Default.ReturnCode = 0
 
 tr = Test.AddTestRun()
 tr.Processes.Default.Command = (
-    server_cmd(2) +
-    fr" ; printf 'GET {random_path}HTTP/1.1\r\n" +
-    fr"Host: localhost:{Test.Variables.server_port}\r\n" +
-    r"X-Req-Id: 1\r\n\r\n'" +
-    f" | nc localhost {ts.Variables.port} >> client.log" +
-    " ; echo '======' >> client.log"
+    f"{server_cmd(2)} ; printf 'GET {random_path}HTTP/1.1\r\n"
+    + f"Host: localhost:{Test.Variables.server_port}\r\n"
+    + r"X-Req-Id: 1\r\n\r\n'"
+    + f" | nc localhost {ts.Variables.port} >> client.log"
+    + " ; echo '======' >> client.log"
 )
 tr.Processes.Default.ReturnCode = 0
 
 tr = Test.AddTestRun()
-tr.Processes.Default.Command = (
-    fr"printf 'GET {random_path}<HTTP/1.1\r\n" +
-    fr"Host: localhost:{Test.Variables.server_port}\r\n" +
-    r"X-Req-Id: 2\r\n\r\n'" +
-    f" | nc localhost {ts.Variables.port} >> client.log" +
-    " ; echo '======' >> client.log"
-)
 tr.Processes.Default.ReturnCode = 0
 
+tr.Processes.Default.Command = (
+    fr"printf 'GET {random_path}<HTTP/1.1\r\n"
+    + fr"Host: localhost:{Test.Variables.server_port}\r\n"
+    + r"X-Req-Id: 2\r\n\r\n'"
+    + f" | nc localhost {ts.Variables.port} >> client.log"
+    + " ; echo '======' >> client.log"
+)
 tr = Test.AddTestRun()
 tr.Processes.Default.Command = (
     fr"printf 'GET {random_path} HTTP/1.2\r\n" +
@@ -133,12 +131,11 @@ tr.Processes.Default.ReturnCode = 0
 
 tr = Test.AddTestRun()
 tr.Processes.Default.Command = (
-    server_cmd(3) +
-    fr" ; printf '{random_method} /example HTTP/1.1\r\n" +
-    fr"Host: localhost:{Test.Variables.server_port}\r\n" +
-    r"X-Req-Id: 6\r\n\r\n'" +
-    f" | nc localhost {ts.Variables.port} >> client.log" +
-    " ; echo '======' >> client.log"
+    f"{server_cmd(3)} ; printf '{random_method} /example HTTP/1.1\r\n"
+    + f"Host: localhost:{Test.Variables.server_port}\r\n"
+    + r"X-Req-Id: 6\r\n\r\n'"
+    + f" | nc localhost {ts.Variables.port} >> client.log"
+    + " ; echo '======' >> client.log"
 )
 tr.Processes.Default.ReturnCode = 0
 

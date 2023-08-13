@@ -1,6 +1,7 @@
 '''
 Test the client_context_dump plugin.
 '''
+
 #  Licensed to the Apache Software Foundation (ASF) under one
 #  or more contributor license agreements.  See the NOTICE file
 #  distributed with this work for additional information
@@ -31,14 +32,16 @@ ts = Test.MakeATSProcess("ts", enable_tls=True)
 ts.addSSLfile("ssl/one.com.pem")
 ts.addSSLfile("ssl/two.com.pem")
 
-ts.Disk.records_config.update({
-    'proxy.config.diags.debug.enabled': 1,
-    'proxy.config.diags.debug.tags': 'client_context_dump',
-    'proxy.config.ssl.server.cert.path': '{}'.format(ts.Variables.SSLDir),
-    'proxy.config.ssl.server.private_key.path': '{}'.format(ts.Variables.SSLDir),
-    'proxy.config.ssl.client.cert.path': '{}'.format(ts.Variables.SSLDir),
-    'proxy.config.ssl.client.private_key.path': '{}'.format(ts.Variables.SSLDir),
-})
+ts.Disk.records_config.update(
+    {
+        'proxy.config.diags.debug.enabled': 1,
+        'proxy.config.diags.debug.tags': 'client_context_dump',
+        'proxy.config.ssl.server.cert.path': f'{ts.Variables.SSLDir}',
+        'proxy.config.ssl.server.private_key.path': f'{ts.Variables.SSLDir}',
+        'proxy.config.ssl.client.cert.path': f'{ts.Variables.SSLDir}',
+        'proxy.config.ssl.client.private_key.path': f'{ts.Variables.SSLDir}',
+    }
+)
 
 ts.Disk.ssl_multicert_config.AddLine(
     'dest_ip=* ssl_cert_name=one.com.pem ssl_key_name=one.com.pem'
@@ -56,7 +59,9 @@ ts.Disk.sni_yaml.AddLines([
 Test.PrepareInstalledPlugin('client_context_dump.so', ts)
 
 # custom log comparison.  Verify the two certs we have loaded are dumped
-log = Test.Disk.File(ts.Variables.LOGDIR + '/client_context_dump.log', exists=True)
+log = Test.Disk.File(
+    f'{ts.Variables.LOGDIR}/client_context_dump.log', exists=True
+)
 log.Content = Testers.ContainsExpression('CN=two.com', 'Info on two.com.pem should dump')
 log.Content += Testers.ContainsExpression("CN=one.com", "Info on one.com.pem should dump")
 

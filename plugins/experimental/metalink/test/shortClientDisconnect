@@ -79,11 +79,13 @@ class factory(protocol.ClientFactory):
         reactor.stop()
 
     class protocol(protocol.Protocol):
-        def connectionMade(ctx):
-            ctx.transport.write('GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname()))
+        def connectionMade(self):
+            self.transport.write(
+                'GET {0}:{1} HTTP/1.1\r\n\r\n'.format(*origin.socket.getsockname())
+            )
 
             # Disconnect before the proxy sends the response headers
-            ctx.transport.loseConnection()
+            self.transport.loseConnection()
 
 
 tcp.Connector('localhost', 8080, factory(), 30, None, reactor).connect()

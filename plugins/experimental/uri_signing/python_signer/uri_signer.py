@@ -63,12 +63,12 @@ def main():
     key_index = 0
     if args.key_index:
         key_index = args.key_index[0]
-        print("args key_index " + str(key_index))
+        print(f"args key_index {str(key_index)}")
     else:
         key_index = random.randint(0, len(keys) - 1)
         print("randomizing key index")
 
-    print("Using key_index " + str(key_index))
+    print(f"Using key_index {str(key_index)}")
 
     print("Using Key: " + str(keys[key_index]["kid"]) + " to sign URI.")
     key = keys[key_index]
@@ -89,11 +89,7 @@ def main():
     if "cdnistt" in config.keys():
         if config["cdnistt"]:
             claimset["cdnistt"] = 1
-            if "cdniets" in config.keys():
-                claimset["cdniets"] = config["cdniets"]
-            else:
-                claimset["cdniets"] = 30
-
+            claimset["cdniets"] = config["cdniets"] if "cdniets" in config.keys() else 30
     if "cdnistd" in config.keys():
         claimset["cdnistd"] = config["cdnistd"]
 
@@ -130,7 +126,7 @@ def main():
 
     Token = jwt.encode(claimset, key, algorithm=key["alg"])
 
-    print("Signed URL: " + args.uri + "?URISigningPackage=" + Token)
+    print(f"Signed URL: {args.uri}?URISigningPackage={Token}")
 
 
 if __name__ == "__main__":

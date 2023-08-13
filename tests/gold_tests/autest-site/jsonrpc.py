@@ -91,7 +91,7 @@ class Notification(dict, metaclass=BaseRequestType):
         if name in self:
             return self[name]
         else:
-            raise AttributeError("No such attribute: " + name)
+            raise AttributeError(f"No such attribute: {name}")
 
     def is_notification(self):
         return True
@@ -188,9 +188,7 @@ class Response(dict):
                 "id":"284e0b86-d03a-11eb-9206-fa163e6d2ec5"
             }
         '''
-        if 'error' in self.__dict__:
-            return True
-        return False
+        return 'error' in self.__dict__
 
     def is_only_success(self) -> bool:
         '''
@@ -203,10 +201,7 @@ class Response(dict):
                 "id": "8504569c-d5a7-11eb-bebc-fa163e6d2ec5"
             }
         '''
-        if self.is_ok() and self.result == 'success':
-            return True
-
-        return False
+        return bool(self.is_ok() and self.result == 'success')
 
     def is_ok(self) -> bool:
         '''
@@ -250,19 +245,14 @@ class Response(dict):
         '''
         Checks if the provided error is an Execution error(9).
         '''
-        if self.is_ok():
-            return False
-
-        return self.error['code'] == 9
+        return False if self.is_ok() else self.error['code'] == 9
 
     def contains_nested_error(self, code=None, msg=None):
         if self.is_execution_error():
             for err in self.error['data']:
                 if code and msg:
                     return err['code'] == code and err['message'] == msg
-                elif code and err['code'] == code:
-                    return True
-                elif msg and err['message'] == msg:
+                elif code and err['code'] == code or msg and err['message'] == msg:
                     return True
                 else:
                     return False
@@ -277,7 +267,4 @@ def make_response(text):
     if isinstance(s, dict):
         return Response(json=s)
     elif isinstance(s, list):
-        batch = []
-        for r in s:
-            batch.append(Response(json=r))
-        return batch
+        return [Response(json=r) for r in s]
